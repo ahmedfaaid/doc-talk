@@ -23,8 +23,8 @@ pub fn run() {
         .setup(|app| {
             #[cfg(debug_assertions)]
             {
-                let window = app.get_webview_window("main").unwrap();
-                window.open_devtools();
+                let _window = app.get_webview_window("main").unwrap();
+                // window.open_devtools();
             }
 
             std::thread::spawn(move || {
