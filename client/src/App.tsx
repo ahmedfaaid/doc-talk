@@ -1,6 +1,7 @@
 import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
 import { useState } from 'react';
+import Layout from './components/layout';
 
 function App() {
   const [selectedDirectory, setSelectedDirectory] = useState<string | null>(
@@ -30,8 +31,7 @@ function App() {
     }
   };
   return (
-    <div>
-      <h1>Doc Talk</h1>
+    <Layout>
       <div>
         <button onClick={handleSelectDirectory}>
           Select a folder to index
@@ -44,7 +44,7 @@ function App() {
         )}
       </div>
       {indexingStatus && <p>Status: {indexingStatus}</p>}
-    </div>
+    </Layout>
   );
 }
 
