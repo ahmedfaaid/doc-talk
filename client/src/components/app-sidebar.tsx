@@ -2,6 +2,7 @@ import { open } from '@tauri-apps/plugin-dialog';
 import { FolderPlus, FolderUp } from 'lucide-react';
 import { useContext } from 'react';
 import { SelectedDirectoryContext } from '../context/directory-dialog';
+import { Button } from './ui/button';
 import { Separator } from './ui/separator';
 import {
   Sidebar,
@@ -32,7 +33,7 @@ export default function AppSidebar() {
 
   return (
     <Sidebar>
-      <SidebarHeader className='px-4'>
+      <SidebarHeader className='p-4'>
         <SidebarMenu>
           <SidebarMenuItem>
             <span className='text-sm text-slate-700'>
@@ -60,7 +61,8 @@ export default function AppSidebar() {
         </SidebarMenu>
       </SidebarHeader>
       <Separator />
-      <SidebarContent>
+      <SidebarContent className='p-4'>
+        <Button>Start a new chat</Button>
         <SidebarGroup />
       </SidebarContent>
       <SidebarFooter />
