@@ -16,7 +16,7 @@ import {
 } from './ui/sidebar';
 
 export default function AppSidebar() {
-  const { setDirectory } = useContext(SelectedDirectoryContext);
+  const { directory, setDirectory } = useContext(SelectedDirectoryContext);
 
   const handleSelectDirectory = async () => {
     const directory = await open({
@@ -36,9 +36,16 @@ export default function AppSidebar() {
       <SidebarHeader className='p-4'>
         <SidebarMenu>
           <SidebarMenuItem>
-            <span className='text-sm text-slate-700'>
-              You have not selected a folder to index
-            </span>
+            {directory ? (
+              <span className='text-sm text-slate-700 break-words'>
+                <span className='font-semibold'>Selected folder:</span>{' '}
+                {directory}
+              </span>
+            ) : (
+              <span className='text-sm text-slate-700'>
+                You have not selected a folder to index
+              </span>
+            )}
           </SidebarMenuItem>
           <SidebarMenuItem className='mb-2'>
             <SidebarMenuButton
