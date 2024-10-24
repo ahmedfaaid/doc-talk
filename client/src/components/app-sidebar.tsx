@@ -58,7 +58,7 @@ export default function AppSidebar() {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
-              disabled
+              disabled={!directory}
               className='p-5 bg-green-800 text-white hover:bg-green-900 hover:text-white'
             >
               <FolderUp />
@@ -68,6 +68,7 @@ export default function AppSidebar() {
         </SidebarMenu>
       </SidebarHeader>
       <Separator />
+      {/* TODO: Handle multiple chat threads in the future */}
       <SidebarContent className='p-4'>
         <Button>Start a new chat</Button>
         <SidebarGroup />
