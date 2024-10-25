@@ -7,7 +7,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     <>
       <SidebarProvider>
         <AppSidebar />
-        <main>{children}</main>
+        <main className='w-full min-h-full'>{children}</main>
       </SidebarProvider>
     </>
   );
