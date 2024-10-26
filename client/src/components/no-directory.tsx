@@ -7,7 +7,7 @@ export default function NoDirectory() {
       <p className='leading-7 text-lg mt-2'>
         You have not selected a folder to index
       </p>
-      <p className='leading-7 text-lg mt-2 italic'>
+      <p className='leading-7 text-md mt-2 italic'>
         Select a folder to index and chat with in the sidebar
       </p>
     </div>
