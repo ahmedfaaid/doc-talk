@@ -1,7 +1,11 @@
 import 'dotenv/config';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { indexDirectory, query } from './controllers/directory';
+import {
+  indexDirectory,
+  query,
+  retrieveIndexedDirectory
+} from './controllers/directory';
 
 const app = new Hono();
 
@@ -13,6 +17,7 @@ app.get('/status', c => {
 
 app.post('/index-directory', indexDirectory);
 app.get('/query', query);
+app.get('/retrieve-directory', retrieveIndexedDirectory);
 
 export default {
   port: 5155,
