@@ -16,6 +16,14 @@ async fn index_directory(path: String) -> Result<String, String> {
     Ok(body)
 }
 
+#[tauri::command]
+async fn retrieve_indexed_directory() -> Result<String, String> {
+    let client = Client::new();
+    let res = client.get("http://localhost:5155/retrieve-directory").json(&serde_json::json!({})).send().await.map_err(|e| e.to_string())?;
+    let body = res.json().await.map_err(|e| e.to_string())?;
+  Ok(body)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -37,7 +45,7 @@ pub fn run() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![index_directory])
+        .invoke_handler(tauri::generate_handler![index_directory, retrieve_indexed_directory])
         .plugin(tauri_plugin_shell::init())
         .run(tauri::generate_context!())
         .expect("There was an error while starting the Doc-Talk Tauri app");
