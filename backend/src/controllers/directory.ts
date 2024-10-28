@@ -4,6 +4,7 @@ import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
 import { PPTXLoader } from '@langchain/community/document_loaders/fs/pptx';
 import { HuggingFaceInferenceEmbeddings } from '@langchain/community/embeddings/hf';
 import { HuggingFaceInference } from '@langchain/community/llms/hf';
+import { HNSWLib } from '@langchain/community/vectorstores/hnswlib';
 import { BaseChatMessageHistory } from '@langchain/core/chat_history';
 import {
   ChatPromptTemplate,
@@ -20,12 +21,12 @@ import { DirectoryLoader } from 'langchain/document_loaders/fs/directory';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 import { ChatMessageHistory } from 'langchain/stores/message/in_memory';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { MemoryVectorStore } from 'langchain/vectorstores/memory';
 import { access } from 'node:fs/promises';
 import { db } from '../lib/db';
 import { systemPrompt } from '../lib/prompts';
 
-let vectorStore: MemoryVectorStore | null = null;
+let vectorStore: HNSWLib | null = null;
+let vectorStorePath: string = 'vectorstore/dir-contents.index';
 let historyAwareRetriever: any = null;
 let qaChain: any = null;
 let ragChain: any = null;
@@ -53,17 +54,6 @@ export const indexDirectory = async (c: Context) => {
 
   try {
     await access(directory);
-
-    const addDirectory = db.query(`
-      INSERT INTO directories (name)
-      SELECT $param
-      WHERE NOT EXISTS (
-        SELECT 1
-        FROM directories
-        WHERE name = $param
-      )
-    `);
-    addDirectory.run({ $param: directory });
 
     const loader = new DirectoryLoader(directory, {
       '.txt': path => new TextLoader(path),
@@ -93,7 +83,24 @@ export const indexDirectory = async (c: Context) => {
     const embeddings = new HuggingFaceInferenceEmbeddings({
       apiKey: process.env.HUGGING_FACE_TOKEN
     });
-    vectorStore = await MemoryVectorStore.fromDocuments(splitText, embeddings);
+    vectorStore = await HNSWLib.fromDocuments(splitText, embeddings);
+    await vectorStore.save(vectorStorePath);
+
+    const addDirectory = db.query(`
+      INSERT INTO directories (name, vector_path, indexed)
+      SELECT $name, $vector_path, $indexed
+      WHERE NOT EXISTS (
+        SELECT 1
+        FROM directories
+        WHERE name = $name
+      )
+    `);
+    addDirectory.run({
+      $name: directory,
+      $vector_path: vectorStorePath,
+      indexed: 1
+    });
+
     const retriever = vectorStore.asRetriever();
 
     const prompt = ChatPromptTemplate.fromMessages([
