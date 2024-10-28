@@ -169,10 +169,13 @@ export const retrieveIndexedDirectory = async (c: Context) => {
     const indexedDirectory = db.query(`
       SELECT id, name, vector_path, indexed FROM directories
     `);
-    const directories = await indexedDirectory.all();
+    const directories = indexedDirectory.all();
 
-    if (!directories) {
-      return c.json({ message: 'No directories have been indexed' }, 400);
+    if (directories.length === 0) {
+      return c.json(
+        { message: 'No directories have been indexed', directories: null },
+        400
+      );
     }
 
     const embeddings = new HuggingFaceInferenceEmbeddings({
@@ -204,7 +207,10 @@ export const retrieveIndexedDirectory = async (c: Context) => {
       combineDocsChain: qaChain
     });
 
-    return c.json({ message: 'Indexed directory retrieved successfully' }, 200);
+    return c.json(
+      { message: 'Indexed directory retrieved successfully', directories },
+      200
+    );
   } catch (error) {
     return c.json({ error: (error as Error).message }, 500);
   }
