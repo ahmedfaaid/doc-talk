@@ -163,3 +163,49 @@ export const query = async (c: Context) => {
     return c.json({ error: (error as Error).message }, 500);
   }
 };
+
+export const retrieveIndexedDirectory = async (c: Context) => {
+  try {
+    const indexedDirectory = db.query(`
+      SELECT id, name, vector_path, indexed FROM directories
+    `);
+    const directories = await indexedDirectory.all();
+
+    if (!directories) {
+      return c.json({ message: 'No directories have been indexed' }, 400);
+    }
+
+    const embeddings = new HuggingFaceInferenceEmbeddings({
+      apiKey: process.env.HUGGING_FACE_TOKEN
+    });
+    vectorStore = await HNSWLib.load(vectorStorePath, embeddings);
+
+    const retriever = vectorStore.asRetriever();
+
+    const prompt = ChatPromptTemplate.fromMessages([
+      ['system', systemPrompt],
+      new MessagesPlaceholder('chat_history'),
+      ['human', '{input}']
+    ]);
+
+    historyAwareRetriever = createHistoryAwareRetriever({
+      llm,
+      retriever,
+      rephrasePrompt: prompt
+    });
+
+    qaChain = await createStuffDocumentsChain({
+      llm,
+      prompt
+    });
+
+    ragChain = await createRetrievalChain({
+      retriever: historyAwareRetriever,
+      combineDocsChain: qaChain
+    });
+
+    return c.json({ message: 'Indexed directory retrieved successfully' }, 200);
+  } catch (error) {
+    return c.json({ error: (error as Error).message }, 500);
+  }
+};
