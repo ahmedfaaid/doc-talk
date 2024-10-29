@@ -20,7 +20,7 @@ async fn index_directory(path: String) -> Result<String, String> {
 async fn retrieve_indexed_directory() -> Result<String, String> {
     let client = Client::new();
     let res = client.get("http://localhost:5155/retrieve-directory").json(&serde_json::json!({})).send().await.map_err(|e| e.to_string())?;
-    let body = res.json().await.map_err(|e| e.to_string())?;
+    let body = res.text().await.map_err(|e| e.to_string())?;
   Ok(body)
 }
 
