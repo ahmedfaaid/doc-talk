@@ -1,8 +1,10 @@
+import { invoke } from '@tauri-apps/api/core';
 import {
   createContext,
   Dispatch,
   ReactNode,
   SetStateAction,
+  useEffect,
   useState
 } from 'react';
 
@@ -22,6 +24,22 @@ export default function SelectedDirectoryProvider({
   children: ReactNode;
 }) {
   const [directory, setDirectory] = useState<string | null>(null);
+
+  useEffect(() => {
+    const checkIndexedDirectory = async () => {
+      try {
+        const indexedDirectory: any = await invoke(
+          'retrieve_indexed_directory'
+        );
+
+        setDirectory(indexedDirectory.directories[0].name);
+      } catch (error) {
+        setDirectory(null);
+      }
+    };
+
+    checkIndexedDirectory();
+  }, []);
 
   return (
     <SelectedDirectoryContext.Provider value={{ directory, setDirectory }}>
