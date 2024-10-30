@@ -11,11 +11,15 @@ import {
 interface SelectedDirectoryState {
   directory: string | null;
   setDirectory: Dispatch<SetStateAction<string | null>>;
+  indexed: boolean;
+  setIndexed: Dispatch<SetStateAction<boolean>>;
 }
 
 export const SelectedDirectoryContext = createContext<SelectedDirectoryState>({
   directory: null,
-  setDirectory: () => {} // Placeholder function to satisfy TypeScript's type checking. Replace with actual implementation.
+  setDirectory: () => {},
+  indexed: false,
+  setIndexed: () => {}
 });
 
 export default function SelectedDirectoryProvider({
@@ -24,6 +28,7 @@ export default function SelectedDirectoryProvider({
   children: ReactNode;
 }) {
   const [directory, setDirectory] = useState<string | null>(null);
+  const [indexed, setIndexed] = useState<boolean>(false);
 
   useEffect(() => {
     const checkIndexedDirectory = async () => {
@@ -33,8 +38,10 @@ export default function SelectedDirectoryProvider({
         );
 
         setDirectory(indexedDirectory.directories[0].name);
+        setIndexed(true);
       } catch (error) {
         setDirectory(null);
+        setIndexed(false);
       }
     };
 
@@ -42,7 +49,9 @@ export default function SelectedDirectoryProvider({
   }, []);
 
   return (
-    <SelectedDirectoryContext.Provider value={{ directory, setDirectory }}>
+    <SelectedDirectoryContext.Provider
+      value={{ directory, setDirectory, indexed, setIndexed }}
+    >
       {children}
     </SelectedDirectoryContext.Provider>
   );
