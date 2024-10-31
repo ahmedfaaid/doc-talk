@@ -60,7 +60,7 @@ export default function AppSidebar() {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
-              disabled={!directory || !indexed}
+              disabled={!directory || indexed}
               className='p-5 bg-green-800 text-white hover:bg-green-900 hover:text-white'
             >
               <FolderUp />
