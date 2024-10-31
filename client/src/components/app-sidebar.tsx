@@ -16,7 +16,9 @@ import {
 } from './ui/sidebar';
 
 export default function AppSidebar() {
-  const { directory, setDirectory } = useContext(SelectedDirectoryContext);
+  const { directory, setDirectory, indexed } = useContext(
+    SelectedDirectoryContext
+  );
 
   const handleSelectDirectory = async () => {
     const directory = await open({
@@ -58,7 +60,7 @@ export default function AppSidebar() {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
-              disabled={!directory}
+              disabled={!directory || !indexed}
               className='p-5 bg-green-800 text-white hover:bg-green-900 hover:text-white'
             >
               <FolderUp />
