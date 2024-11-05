@@ -98,7 +98,7 @@ export const indexDirectory = async (c: Context) => {
     addDirectory.run({
       $name: directory,
       $vector_path: vectorStorePath,
-      indexed: 1
+      $indexed: 1
     });
 
     const retriever = vectorStore.asRetriever();
