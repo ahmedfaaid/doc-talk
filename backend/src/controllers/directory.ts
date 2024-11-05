@@ -109,7 +109,7 @@ export const indexDirectory = async (c: Context) => {
       ['human', '{input}']
     ]);
 
-    historyAwareRetriever = createHistoryAwareRetriever({
+    historyAwareRetriever = await createHistoryAwareRetriever({
       llm,
       retriever,
       rephrasePrompt: prompt
@@ -191,7 +191,7 @@ export const retrieveIndexedDirectory = async (c: Context) => {
       ['human', '{input}']
     ]);
 
-    historyAwareRetriever = createHistoryAwareRetriever({
+    historyAwareRetriever = await createHistoryAwareRetriever({
       llm,
       retriever,
       rephrasePrompt: prompt
