@@ -7,6 +7,7 @@
     "@huggingface/inference": "2",
     "@langchain/community": "^0.3.6",
     "@langchain/core": "^0.3.13",
+    "@langchain/openai": "^0.3.12",
     "dotenv": "^16.4.5",
     "hnswlib-node": "^3.0.0",
     "hono": "^4.6.5",
