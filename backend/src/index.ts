@@ -18,7 +18,7 @@ app.get('/status', c => {
 });
 
 app.post('/index-directory', indexDirectory);
-app.get('/query', query);
+app.post('/query', query);
 app.get('/retrieve-directory', retrieveIndexedDirectory);
 
 export default {
