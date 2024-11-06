@@ -3,7 +3,6 @@ import { DocxLoader } from '@langchain/community/document_loaders/fs/docx';
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
 import { PPTXLoader } from '@langchain/community/document_loaders/fs/pptx';
 import { HuggingFaceInferenceEmbeddings } from '@langchain/community/embeddings/hf';
-import { HuggingFaceInference } from '@langchain/community/llms/hf';
 import { HNSWLib } from '@langchain/community/vectorstores/hnswlib';
 import { BaseChatMessageHistory } from '@langchain/core/chat_history';
 import {
@@ -11,6 +10,7 @@ import {
   MessagesPlaceholder
 } from '@langchain/core/prompts';
 import { RunnableWithMessageHistory } from '@langchain/core/runnables';
+import { ChatOpenAI } from '@langchain/openai';
 import 'dotenv/config';
 import { Context } from 'hono';
 import { streamSSE } from 'hono/streaming';
@@ -44,9 +44,13 @@ function getSessionHistory(sessionId: string): BaseChatMessageHistory {
   return store[sessionId];
 }
 
-const llm = new HuggingFaceInference({
-  model: 'meta-llama/Llama-3.1-8B-Instruct',
-  apiKey: process.env.HUGGING_FACE_TOKEN
+const llm = new ChatOpenAI({
+  model: 'TheBloke/Mistral-7B-Instruct-v0.2-GGUF',
+  temperature: 0.7,
+  apiKey: 'lm-studio',
+  configuration: {
+    baseURL: 'http://localhost:1234/v1'
+  }
 });
 
 export const indexDirectory = async (c: Context) => {
