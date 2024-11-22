@@ -169,11 +169,13 @@ export const query = async (c: Context) => {
 };
 
 export const retrieveIndexedDirectory = async (c: Context) => {
+  const { directory } = await c.req.json();
+
   try {
     const indexedDirectory = db.query(`
-      SELECT id, name, vector_path, indexed FROM directories
+      SELECT id, name, vector_path, indexed FROM directories WHERE name = $name
     `);
-    const directories = indexedDirectory.all();
+    const directories = indexedDirectory.all({ name: directory });
 
     if (directories.length === 0) {
       return c.json(
