@@ -54,12 +54,12 @@ const llm = new ChatOpenAI({
 });
 
 export const indexDirectory = async (c: Context) => {
-  const { directory } = await c.req.json();
+  const directory = c.req.query('directory');
 
   try {
-    await access(directory);
+    await access(directory!);
 
-    const loader = new DirectoryLoader(directory, {
+    const loader = new DirectoryLoader(directory!, {
       '.txt': path => new TextLoader(path),
       '.pdf': path => new PDFLoader(path),
       '.csv': path => new CSVLoader(path),
@@ -72,7 +72,9 @@ export const indexDirectory = async (c: Context) => {
       return c.json(
         {
           message:
-            'No text, pdf, csv, docx or pptx files found in the directory'
+            'No text, pdf, csv, docx or pptx files found in the directory',
+          code: 404,
+          directories: null
         },
         404
       );
@@ -99,8 +101,8 @@ export const indexDirectory = async (c: Context) => {
         WHERE name = $name
       )
     `);
-    addDirectory.run({
-      $name: directory,
+    const directories = addDirectory.all({
+      $name: directory!,
       $vector_path: vectorStorePath,
       $indexed: 1
     });
@@ -129,9 +131,15 @@ export const indexDirectory = async (c: Context) => {
       combineDocsChain: qaChain
     });
 
-    return c.json({ message: 'Directory indexed successfully' }, 201);
+    return c.json(
+      { message: 'Directory indexed successfully', code: 201, directories },
+      201
+    );
   } catch (error) {
-    return c.json({ error: (error as Error).message }, 500);
+    return c.json(
+      { message: (error as Error).message, code: 500, directories: null },
+      500
+    );
   }
 };
 
