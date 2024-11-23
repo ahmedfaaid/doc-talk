@@ -5,9 +5,11 @@ import NoDirectory from './components/no-directory';
 import { SelectedDirectoryContext } from './context/directory-dialog';
 
 function App() {
-  const { directory } = useContext(SelectedDirectoryContext);
+  const { directory, indexed } = useContext(SelectedDirectoryContext);
 
-  return <Layout>{directory ? <ChatView /> : <NoDirectory />}</Layout>;
+  return (
+    <Layout>{directory && indexed ? <ChatView /> : <NoDirectory />}</Layout>
+  );
 }
 
 export default App;
