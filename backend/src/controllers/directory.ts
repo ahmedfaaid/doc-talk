@@ -169,17 +169,28 @@ export const query = async (c: Context) => {
 };
 
 export const retrieveIndexedDirectory = async (c: Context) => {
-  const { directory } = await c.req.json();
+  const directory = c.req.query('directory');
 
   try {
+    if (!directory) {
+      return c.json(
+        { message: 'No directory provided', code: 400, directories: null },
+        400
+      );
+    }
+
     const indexedDirectory = db.query(`
       SELECT id, name, vector_path, indexed FROM directories WHERE name = $name
     `);
-    const directories = indexedDirectory.all({ name: directory });
+    const directories = indexedDirectory.all({ $name: directory });
 
     if (directories.length === 0) {
       return c.json(
-        { message: 'No directories have been indexed', directories: null },
+        {
+          message: 'No directories have been indexed',
+          code: 400,
+          directories: null
+        },
         400
       );
     }
@@ -214,10 +225,17 @@ export const retrieveIndexedDirectory = async (c: Context) => {
     });
 
     return c.json(
-      { message: 'Indexed directory retrieved successfully', directories },
+      {
+        message: 'Indexed directory retrieved successfully',
+        code: 200,
+        directories
+      },
       200
     );
   } catch (error) {
-    return c.json({ error: (error as Error).message }, 500);
+    return c.json(
+      { message: (error as Error).message, code: 500, directories: null },
+      500
+    );
   }
 };
