@@ -1,3 +1,4 @@
+import { ApiResponse } from '@/types';
 import { invoke } from '@tauri-apps/api/core';
 import {
   createContext,
@@ -33,20 +34,26 @@ export default function SelectedDirectoryProvider({
   useEffect(() => {
     const checkIndexedDirectory = async () => {
       try {
-        const indexedDirectory: any = await invoke(
-          'retrieve_indexed_directory'
+        const indexedDirectory: ApiResponse = await invoke(
+          'retrieve_indexed_directory',
+          {
+            directory
+          }
         );
 
-        setDirectory(indexedDirectory.directories[0].name);
-        setIndexed(true);
+        if (indexedDirectory.directories === null) {
+          setIndexed(false);
+        } else if (indexedDirectory.directories.length > 0) {
+          setDirectory(indexedDirectory.directories[0].name);
+          setIndexed(indexedDirectory.directories[0].indexed ? true : false);
+        }
       } catch (error) {
-        setDirectory(null);
         setIndexed(false);
       }
     };
 
     checkIndexedDirectory();
-  }, []);
+  }, [directory]);
 
   return (
     <SelectedDirectoryContext.Provider
