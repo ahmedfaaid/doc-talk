@@ -1,3 +1,5 @@
+import { ApiResponse } from '@/types';
+import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
 import { FolderPlus, FolderUp } from 'lucide-react';
 import { useContext } from 'react';
@@ -16,7 +18,7 @@ import {
 } from './ui/sidebar';
 
 export default function AppSidebar() {
-  const { directory, setDirectory, indexed } = useContext(
+  const { directory, setDirectory, indexed, setIndexed } = useContext(
     SelectedDirectoryContext
   );
 
@@ -33,13 +35,32 @@ export default function AppSidebar() {
     }
   };
 
+  const handleIndexDirectory = async () => {
+    try {
+      const indexDirectory: ApiResponse = await invoke('indexDirectory', {
+        directory
+      });
+
+      if (indexDirectory.directories === null) {
+        setIndexed(false);
+        alert('Failed to index the directory');
+      } else {
+        setIndexed(true);
+        alert('Directory indexed successfully');
+      }
+    } catch (error) {
+      setIndexed(false);
+      alert('Failed to index the directory');
+    }
+  };
+
   return (
     <Sidebar>
       <SidebarHeader className='p-4'>
         <SidebarMenu>
           <SidebarMenuItem>
             {directory ? (
-              <span className='text-sm text-slate-700 break-words'>
+              <span className='break-words text-sm text-slate-700'>
                 <span className='font-semibold'>Selected folder:</span>{' '}
                 {directory}
               </span>
@@ -52,7 +73,7 @@ export default function AppSidebar() {
           <SidebarMenuItem className='mb-2'>
             <SidebarMenuButton
               onClick={handleSelectDirectory}
-              className='p-5 bg-sky-700 text-white hover:bg-sky-900 hover:text-white'
+              className='bg-sky-700 p-5 text-white hover:bg-sky-900 hover:text-white'
             >
               <FolderPlus />
               Select a folder to index
@@ -61,7 +82,8 @@ export default function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton
               disabled={!directory || indexed}
-              className='p-5 bg-green-800 text-white hover:bg-green-900 hover:text-white'
+              className='bg-green-800 p-5 text-white hover:bg-green-900 hover:text-white'
+              onClick={handleIndexDirectory}
             >
               <FolderUp />
               Index folder
