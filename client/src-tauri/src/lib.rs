@@ -3,11 +3,14 @@ use std::process::Command;
 use tauri::Manager;
 
 #[tauri::command]
-async fn index_directory(path: String) -> Result<serde_json::Value, String> {
+async fn index_directory(path: String, name: String) -> Result<serde_json::Value, String> {
     let client = Client::new();
     let res = client
         .post("http://localhost:5155/index-directory")
-        .query(&[("directory", &path)])
+        .json(&serde_json::json!({
+            "directoryPath": path,
+            "name": name,
+        }))
         .send()
         .await
         .map_err(|e| e.to_string())?;
