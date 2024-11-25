@@ -26,7 +26,7 @@ import { db } from '../lib/db';
 import { systemPrompt } from '../lib/prompts';
 
 let vectorStore: HNSWLib | null = null;
-let vectorStorePath: string = 'vectorstore/dir-contents.index';
+let vectorStoreBasePath: string = 'vectorstore';
 let historyAwareRetriever: any = null;
 let qaChain: any = null;
 let ragChain: any = null;
@@ -54,12 +54,12 @@ const llm = new ChatOpenAI({
 });
 
 export const indexDirectory = async (c: Context) => {
-  const directory = c.req.query('directory');
+  const { directoryPath, name } = await c.req.json();
 
   try {
-    await access(directory!);
+    await access(directoryPath!);
 
-    const loader = new DirectoryLoader(directory!, {
+    const loader = new DirectoryLoader(directoryPath!, {
       '.txt': path => new TextLoader(path),
       '.pdf': path => new PDFLoader(path),
       '.csv': path => new CSVLoader(path),
@@ -74,7 +74,7 @@ export const indexDirectory = async (c: Context) => {
           message:
             'No text, pdf, csv, docx or pptx files found in the directory',
           code: 404,
-          directories: null
+          directory: null
         },
         404
       );
@@ -90,20 +90,20 @@ export const indexDirectory = async (c: Context) => {
       apiKey: process.env.HUGGING_FACE_TOKEN
     });
     vectorStore = await HNSWLib.fromDocuments(splitText, embeddings);
-    await vectorStore.save(vectorStorePath);
+    await vectorStore.save(`${vectorStoreBasePath}/${name}`);
 
     const addDirectory = db.query(`
-      INSERT INTO directories (name, vector_path, indexed)
-      SELECT $name, $vector_path, $indexed
+      INSERT INTO directories (name, directory_path, vector_path, indexed)
+      SELECT $name, $directory_path, $vector_path, $indexed
       WHERE NOT EXISTS (
         SELECT 1
         FROM directories
-        WHERE name = $name
+        WHERE name = $name AND directory_path = $directory_path
       )
     `);
-    const directories = addDirectory.all({
-      $name: directory!,
-      $vector_path: vectorStorePath,
+    const directory = addDirectory.get({
+      $name: directoryPath!,
+      $vector_path: `${vectorStoreBasePath}/${name}`,
       $indexed: 1
     });
 
@@ -132,12 +132,12 @@ export const indexDirectory = async (c: Context) => {
     });
 
     return c.json(
-      { message: 'Directory indexed successfully', code: 201, directories },
+      { message: 'Directory indexed successfully', code: 201, directory },
       201
     );
   } catch (error) {
     return c.json(
-      { message: (error as Error).message, code: 500, directories: null },
+      { message: (error as Error).message, code: 500, directory: null },
       500
     );
   }
@@ -182,22 +182,22 @@ export const retrieveIndexedDirectory = async (c: Context) => {
   try {
     if (!directory) {
       return c.json(
-        { message: 'No directory provided', code: 400, directories: null },
+        { message: 'No directory provided', code: 400, directory: null },
         400
       );
     }
 
     const indexedDirectory = db.query(`
-      SELECT id, name, vector_path, indexed FROM directories WHERE name = $name
+      SELECT id, name, directory_path, vector_path, indexed FROM directories WHERE name = $name
     `);
-    const directories = indexedDirectory.all({ $name: directory });
+    const foundDirectory: any = indexedDirectory.get({ $name: directory });
 
-    if (directories.length === 0) {
+    if (!foundDirectory) {
       return c.json(
         {
-          message: 'No directories have been indexed',
+          message: 'No directory has been indexed',
           code: 400,
-          directories: null
+          directory: null
         },
         400
       );
@@ -206,7 +206,10 @@ export const retrieveIndexedDirectory = async (c: Context) => {
     const embeddings = new HuggingFaceInferenceEmbeddings({
       apiKey: process.env.HUGGING_FACE_TOKEN
     });
-    vectorStore = await HNSWLib.load(vectorStorePath, embeddings);
+    vectorStore = await HNSWLib.load(
+      `${vectorStoreBasePath}/${foundDirectory.name}`,
+      embeddings
+    );
 
     const retriever = vectorStore.asRetriever();
 
@@ -236,13 +239,13 @@ export const retrieveIndexedDirectory = async (c: Context) => {
       {
         message: 'Indexed directory retrieved successfully',
         code: 200,
-        directories
+        directory: [directory]
       },
       200
     );
   } catch (error) {
     return c.json(
-      { message: (error as Error).message, code: 500, directories: null },
+      { message: (error as Error).message, code: 500, directory: null },
       500
     );
   }
