@@ -8,5 +8,5 @@ export interface Directory {
 export interface ApiResponse {
   message: string;
   code: number;
-  directories: Directory[] | null;
+  directory: Directory | null;
 }

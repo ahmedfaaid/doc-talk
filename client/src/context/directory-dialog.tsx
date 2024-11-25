@@ -41,11 +41,11 @@ export default function SelectedDirectoryProvider({
           }
         );
 
-        if (indexedDirectory.directories === null) {
+        if (indexedDirectory.directory === null) {
           setIndexed(false);
-        } else if (indexedDirectory.directories.length > 0) {
-          setDirectory(indexedDirectory.directories[0].name);
-          setIndexed(indexedDirectory.directories[0].indexed ? true : false);
+        } else {
+          setDirectory(indexedDirectory.directory.name);
+          setIndexed(indexedDirectory.directory.indexed ? true : false);
         }
       } catch (error) {
         setIndexed(false);

@@ -41,7 +41,7 @@ export default function AppSidebar() {
         directory
       });
 
-      if (indexDirectory.directories === null) {
+      if (indexDirectory.directory === null) {
         setIndexed(false);
         alert('Failed to index the directory');
       } else {
