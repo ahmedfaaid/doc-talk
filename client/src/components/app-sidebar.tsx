@@ -1,8 +1,9 @@
+import { Input } from '@/components/ui/input';
 import { ApiResponse } from '@/types';
 import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
 import { FolderPlus, FolderUp } from 'lucide-react';
-import { useContext } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { SelectedDirectoryContext } from '../context/directory-dialog';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
@@ -18,9 +19,16 @@ import {
 } from './ui/sidebar';
 
 export default function AppSidebar() {
-  const { directory, setDirectory, indexed, setIndexed } = useContext(
+  const { directory, setDirectory, indexed, setIndexed, name } = useContext(
     SelectedDirectoryContext
   );
+  const folderNameRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (directory !== null && !indexed) {
+      folderNameRef.current!.focus();
+    }
+  }, [directory, indexed]);
 
   const handleSelectDirectory = async () => {
     const directory = await open({
@@ -37,8 +45,9 @@ export default function AppSidebar() {
 
   const handleIndexDirectory = async () => {
     try {
-      const indexDirectory: ApiResponse = await invoke('indexDirectory', {
-        directory
+      const indexDirectory: ApiResponse = await invoke('index_directory', {
+        directoryPath: directory,
+        name
       });
 
       if (indexDirectory.directory === null) {
@@ -69,6 +78,15 @@ export default function AppSidebar() {
                 You have not selected a folder to index
               </span>
             )}
+          </SidebarMenuItem>
+          <SidebarMenuItem className='mb-2'>
+            <Input
+              disabled={false}
+              type='text'
+              placeholder='Enter a name for your folder'
+              className='focus-visible:ring-green-500'
+              ref={folderNameRef}
+            />
           </SidebarMenuItem>
           <SidebarMenuItem className='mb-2'>
             <SidebarMenuButton
