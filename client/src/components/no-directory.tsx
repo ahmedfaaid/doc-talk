@@ -24,8 +24,8 @@ export default function NoDirectory() {
             You have selected: {directory}
           </p>
           <p className='text-md mt-2 italic leading-7'>
-            Click the "Index Folder" button in the sidebar to index the folder
-            and start chatting
+            Enter a folder name and click the "Index Folder" button in the
+            sidebar to index the folder and start chatting
           </p>
         </div>
       ) : null}
