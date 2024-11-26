@@ -14,13 +14,17 @@ interface SelectedDirectoryState {
   setDirectory: Dispatch<SetStateAction<string | null>>;
   indexed: boolean;
   setIndexed: Dispatch<SetStateAction<boolean>>;
+  name: string;
+  setName: Dispatch<SetStateAction<string>>;
 }
 
 export const SelectedDirectoryContext = createContext<SelectedDirectoryState>({
   directory: null,
   setDirectory: () => {},
   indexed: false,
-  setIndexed: () => {}
+  setIndexed: () => {},
+  name: '',
+  setName: () => {}
 });
 
 export default function SelectedDirectoryProvider({
@@ -30,6 +34,7 @@ export default function SelectedDirectoryProvider({
 }) {
   const [directory, setDirectory] = useState<string | null>(null);
   const [indexed, setIndexed] = useState<boolean>(false);
+  const [name, setName] = useState<string>('');
 
   useEffect(() => {
     const checkIndexedDirectory = async () => {
@@ -43,12 +48,15 @@ export default function SelectedDirectoryProvider({
 
         if (indexedDirectory.directory === null) {
           setIndexed(false);
+          setName('');
         } else {
           setDirectory(indexedDirectory.directory.name);
           setIndexed(indexedDirectory.directory.indexed ? true : false);
+          setName(indexedDirectory.directory.name);
         }
       } catch (error) {
         setIndexed(false);
+        setName('');
       }
     };
 
@@ -57,7 +65,7 @@ export default function SelectedDirectoryProvider({
 
   return (
     <SelectedDirectoryContext.Provider
-      value={{ directory, setDirectory, indexed, setIndexed }}
+      value={{ directory, setDirectory, indexed, setIndexed, name, setName }}
     >
       {children}
     </SelectedDirectoryContext.Provider>
