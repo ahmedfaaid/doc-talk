@@ -203,9 +203,9 @@ export const retrieveIndexedDirectory = async (c: Context) => {
     }
 
     const indexedDirectory = db.query(`
-      SELECT id, name, directory_path, vector_path, indexed FROM directories WHERE name = $name
+      SELECT id, name, directory_path, vector_path, indexed FROM directories WHERE directory_path = $directory
     `);
-    const foundDirectory: any = indexedDirectory.get({ $name: directory });
+    const foundDirectory: any = indexedDirectory.get({ $directory: directory });
 
     if (!foundDirectory) {
       return c.json(
@@ -254,7 +254,7 @@ export const retrieveIndexedDirectory = async (c: Context) => {
       {
         message: 'Indexed directory retrieved successfully',
         code: 200,
-        directory: [directory]
+        directory: foundDirectory
       },
       200
     );
