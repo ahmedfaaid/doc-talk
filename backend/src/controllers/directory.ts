@@ -10,7 +10,7 @@ import {
   MessagesPlaceholder
 } from '@langchain/core/prompts';
 import { RunnableWithMessageHistory } from '@langchain/core/runnables';
-import { ChatOpenAI } from '@langchain/openai';
+import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai';
 import 'dotenv/config';
 import { Context } from 'hono';
 import { streamSSE } from 'hono/streaming';
@@ -86,25 +86,40 @@ export const indexDirectory = async (c: Context) => {
     });
     const splitText = await textSplitter.splitDocuments(docs);
 
-    const embeddings = new HuggingFaceInferenceEmbeddings({
-      apiKey: process.env.HUGGING_FACE_TOKEN
+    const embeddings = new OpenAIEmbeddings({
+      apiKey: 'lm-studio',
+      model: 'nomic-ai/nomic-embed-text-v1.5-GGUF',
+      configuration: {
+        baseURL: 'http://localhost:1234/v1'
+      }
     });
     vectorStore = await HNSWLib.fromDocuments(splitText, embeddings);
     await vectorStore.save(`${vectorStoreBasePath}/${name}`);
 
-    const addDirectory = db.query(`
+    const addDirectory = db.prepare(`
       INSERT INTO directories (name, directory_path, vector_path, indexed)
       SELECT $name, $directory_path, $vector_path, $indexed
       WHERE NOT EXISTS (
         SELECT 1
         FROM directories
         WHERE name = $name AND directory_path = $directory_path
-      )
+      );
     `);
-    const directory = addDirectory.get({
-      $name: directoryPath!,
+    const getDirectory = db.prepare(`
+      SELECT * FROM directories 
+      WHERE name = $name AND directory_path = $directory_path;
+    `);
+
+    addDirectory.run({
+      $name: name,
       $vector_path: `${vectorStoreBasePath}/${name}`,
-      $indexed: 1
+      $indexed: 1,
+      $directory_path: directoryPath
+    });
+
+    const directory = getDirectory.get({
+      $name: name,
+      $directory_path: directoryPath
     });
 
     const retriever = vectorStore.asRetriever();
