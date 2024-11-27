@@ -50,7 +50,6 @@ export default function SelectedDirectoryProvider({
           setIndexed(false);
           setName('');
         } else {
-          setDirectory(indexedDirectory.directory.name);
           setIndexed(indexedDirectory.directory.indexed ? true : false);
           setName(indexedDirectory.directory.name);
         }
