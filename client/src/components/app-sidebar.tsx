@@ -19,9 +19,8 @@ import {
 } from './ui/sidebar';
 
 export default function AppSidebar() {
-  const { directory, setDirectory, indexed, setIndexed, name } = useContext(
-    SelectedDirectoryContext
-  );
+  const { directory, setDirectory, indexed, setIndexed, name, setName } =
+    useContext(SelectedDirectoryContext);
   const folderNameRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -86,6 +85,8 @@ export default function AppSidebar() {
               placeholder='Enter a name for your folder'
               className='focus-visible:ring-green-500'
               ref={folderNameRef}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
           </SidebarMenuItem>
           <SidebarMenuItem className='mb-2'>
