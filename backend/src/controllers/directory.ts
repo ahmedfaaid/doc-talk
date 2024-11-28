@@ -125,9 +125,9 @@ export const indexDirectory = async (c: Context) => {
     const retriever = vectorStore.asRetriever();
 
     const prompt = ChatPromptTemplate.fromMessages([
-      ['system', systemPrompt],
+      ['assistant', systemPrompt],
       new MessagesPlaceholder('chat_history'),
-      ['human', '{input}']
+      ['user', '{input}']
     ]);
 
     historyAwareRetriever = await createHistoryAwareRetriever({
@@ -229,9 +229,9 @@ export const retrieveIndexedDirectory = async (c: Context) => {
     const retriever = vectorStore.asRetriever();
 
     const prompt = ChatPromptTemplate.fromMessages([
-      ['system', systemPrompt],
+      ['assistant', systemPrompt],
       new MessagesPlaceholder('chat_history'),
-      ['human', '{input}']
+      ['user', '{input}']
     ]);
 
     historyAwareRetriever = await createHistoryAwareRetriever({
