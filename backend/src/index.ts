@@ -2,11 +2,7 @@ import 'dotenv/config';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
-import {
-  indexDirectory,
-  query,
-  retrieveIndexedDirectory
-} from './controllers/directory';
+import { chat, indexDirectory, retrieveIndexedDirectory } from './controllers';
 
 const app = new Hono();
 
@@ -18,7 +14,7 @@ app.get('/status', c => {
 });
 
 app.post('/index-directory', indexDirectory);
-app.post('/query', query);
+app.post('/chat', chat);
 app.get('/retrieve-directory', retrieveIndexedDirectory);
 
 export default {
