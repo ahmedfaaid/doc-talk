@@ -43,13 +43,14 @@ async fn retrieve_indexed_directory(directory: Option<String>) -> Result<serde_j
 }
 
 #[tauri::command]
-async fn chat(window: tauri::Window, query: String) -> Result<(), String> {
+async fn chat(window: tauri::Window, query: String, directory_path: String) -> Result<(), String> {
     let client = Client::new();
 
     let res = client
-        .post("http://localhost:5155/query")
+        .post("http://localhost:5155/chat")
         .json(&serde_json::json!({
             "query": query,
+            "directoryPath": directory_path,
         }))
         .send()
         .await
