@@ -118,7 +118,6 @@ export const chat = async (c: Context) => {
         { input: query },
         { configurable: { sessionId: uniqueId } }
       )) {
-        console.log({ s });
         await stream.writeSSE({
           data: JSON.stringify(s),
           event: 'answer',
