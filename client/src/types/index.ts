@@ -10,3 +10,15 @@ export interface ApiResponse {
   code: number;
   directory: Directory | null;
 }
+
+export interface ChatResponse {
+  id: number;
+  event: string;
+  data: string;
+}
+
+export interface UserMessage {
+  id: number;
+  role: string;
+  content: string;
+}
