@@ -14,7 +14,7 @@ import { createHistoryAwareRetriever } from 'langchain/chains/history_aware_retr
 import { createRetrievalChain } from 'langchain/chains/retrieval';
 import { ChatMessageHistory } from 'langchain/stores/message/in_memory';
 import { db } from '../lib/db';
-import { systemPrompt } from '../lib/prompts';
+import { contextualPrompt, systemPrompt } from '../lib/prompts';
 
 const uniqueId: string = String(
   Math.random().toString(16) + '-' + Date.now().toString(32)
@@ -30,7 +30,8 @@ function getSessionHistory(sessionId: string): BaseChatMessageHistory {
 }
 
 const llm = new ChatOpenAI({
-  model: 'TheBloke/Mistral-7B-Instruct-v0.2-GGUF',
+  // model: 'TheBloke/Mistral-7B-Instruct-v0.2-GGUF',
+  model: 'meta-llama-3.1-8b-instruct',
   temperature: 0.7,
   apiKey: 'lm-studio',
   configuration: {
@@ -76,7 +77,13 @@ export const chat = async (c: Context) => {
 
     const retriever = vectorStore.asRetriever();
 
-    const prompt = ChatPromptTemplate.fromMessages([
+    const prompt1 = ChatPromptTemplate.fromMessages([
+      ['assistant', contextualPrompt],
+      new MessagesPlaceholder('chat_history'),
+      ['user', '{input}']
+    ]);
+
+    const prompt2 = ChatPromptTemplate.fromMessages([
       ['assistant', systemPrompt],
       new MessagesPlaceholder('chat_history'),
       ['user', '{input}']
@@ -85,12 +92,12 @@ export const chat = async (c: Context) => {
     const historyAwareRetriever = await createHistoryAwareRetriever({
       llm,
       retriever,
-      rephrasePrompt: prompt
+      rephrasePrompt: prompt1
     });
 
     const qaChain = await createStuffDocumentsChain({
       llm,
-      prompt
+      prompt: prompt2
     });
 
     const ragChain = await createRetrievalChain({
@@ -111,6 +118,7 @@ export const chat = async (c: Context) => {
         { input: query },
         { configurable: { sessionId: uniqueId } }
       )) {
+        console.log({ s });
         await stream.writeSSE({
           data: JSON.stringify(s),
           event: 'answer',
