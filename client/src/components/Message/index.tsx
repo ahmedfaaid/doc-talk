@@ -1,6 +1,6 @@
 import { Message as Msg } from '@/types';
-import AiMessage from './AiMessage';
-import UserMessage from './UserMessage';
+import AiMessage from './ai-message';
+import UserMessage from './user-message';
 
 interface MessageProps {
   message: Msg;
