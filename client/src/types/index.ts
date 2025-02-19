@@ -17,7 +17,7 @@ export interface ChatResponse {
   data: string;
 }
 
-export interface UserMessage {
+export interface Message {
   id: number;
   role: string;
   content: string;

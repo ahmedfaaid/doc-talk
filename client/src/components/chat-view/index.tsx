@@ -1,12 +1,12 @@
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { SelectedDirectoryContext } from '@/context/directory-dialog';
-import { UserMessage } from '@/types';
+import { Message } from '@/types';
 import { FormEvent, useContext, useState } from 'react';
 
 export default function ChatView() {
   const { directory } = useContext(SelectedDirectoryContext);
-  const [messages, setMessages] = useState<UserMessage[] | []>([]);
+  const [messages, setMessages] = useState<Message[] | []>([]);
   const [inputMessage, setInputMessage] = useState('');
 
   const handleSubmitMessage = async (e: FormEvent) => {
