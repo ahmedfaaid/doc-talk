@@ -17,14 +17,21 @@ export default function ChatView() {
     setMessages((prevState) => [...prevState, userMessage]);
     setInputMessage('');
 
+    const abortController = new AbortController();
+
     try {
       const res = await fetch('http://localhost:5155/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ query: inputMessage, directoryPath: directory })
+        body: JSON.stringify({ query: inputMessage, directoryPath: directory }),
+        signal: abortController.signal
       });
+
+      if (!res.body) {
+        throw new Error('Response body is undefined');
+      }
 
       const reader = res.body?.getReader();
       const decoder = new TextDecoder();
@@ -37,7 +44,7 @@ export default function ChatView() {
           break;
         }
 
-        const chunk = decoder.decode(value);
+        const chunk = decoder.decode(value, { stream: true });
 
         const jsonChunks = chunk
           .split('\n')
@@ -72,6 +79,8 @@ export default function ChatView() {
       }
     } catch (error) {
       alert('Streaming Error: ' + (error as Error).message);
+    } finally {
+      abortController.abort();
     }
   };
 
