@@ -1,12 +1,13 @@
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { SelectedDirectoryContext } from '@/context/directory-dialog';
-import { Message } from '@/types';
+import { Message as Msg } from '@/types';
 import { FormEvent, useContext, useState } from 'react';
+import Message from '../Message';
 
 export default function ChatView() {
   const { directory } = useContext(SelectedDirectoryContext);
-  const [messages, setMessages] = useState<Message[] | []>([]);
+  const [messages, setMessages] = useState<Msg[] | []>([]);
   const [inputMessage, setInputMessage] = useState('');
 
   const handleSubmitMessage = async (e: FormEvent) => {
@@ -79,24 +80,9 @@ export default function ChatView() {
       <div className='mx-auto flex h-full w-3/4 flex-col items-center justify-between'>
         {/* chat timeline */}
         <div className='basis my-2 w-full shrink grow rounded-md border border-zinc-200 p-2'>
-          {messages.map((message) =>
-            message.role === 'assistant' ? (
-              <div
-                className='receive-chat relative flex justify-start'
-                key={message.id}
-              >
-                <div className='mb-2 max-w-[80%] rounded bg-zinc-200 px-5 py-2 text-sm font-light text-black'>
-                  <p>{message.content}</p>
-                </div>
-              </div>
-            ) : (
-              <div className='send-chat flex justify-end' key={message.id}>
-                <div className='mb-2 max-w-[80%] rounded bg-zinc-800 px-5 py-2 text-sm font-light text-white'>
-                  <p>{message.content}</p>
-                </div>
-              </div>
-            )
-          )}
+          {messages.map((message) => (
+            <Message message={message} key={message.id} />
+          ))}
         </div>
         {/* chat footer and input */}
         <form
