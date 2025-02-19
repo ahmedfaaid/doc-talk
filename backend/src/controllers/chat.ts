@@ -16,10 +16,6 @@ import { ChatMessageHistory } from 'langchain/stores/message/in_memory';
 import { db } from '../lib/db';
 import { contextualPrompt, systemPrompt } from '../lib/prompts';
 
-const uniqueId: string = String(
-  Math.random().toString(16) + '-' + Date.now().toString(32)
-);
-let streamId: number = 0;
 let store: Record<string, BaseChatMessageHistory> = {};
 
 function getSessionHistory(sessionId: string): BaseChatMessageHistory {
@@ -113,16 +109,31 @@ export const chat = async (c: Context) => {
       outputMessagesKey: 'answer'
     });
 
+    const uniqueId: string = String(
+      Math.random().toString(16) + '-' + Date.now().toString(32)
+    );
+
     return streamSSE(c, async stream => {
-      for await (const s of await conversationalRagChain.stream(
-        { input: query },
-        { configurable: { sessionId: uniqueId } }
-      )) {
+      try {
+        for await (const s of await conversationalRagChain.stream(
+          { input: query },
+          { configurable: { sessionId: uniqueId } }
+        )) {
+          await stream.writeSSE({
+            data: JSON.stringify(s),
+            event: 'answer',
+            id: String(Date.now())
+          });
+        }
+      } catch (error) {
+        console.error('Streaming error: ' + error);
         await stream.writeSSE({
-          data: JSON.stringify(s),
-          event: 'answer',
-          id: String(streamId++)
+          data: JSON.stringify({ error: 'Streaming failed' }),
+          event: 'error',
+          id: String(Date.now())
         });
+      } finally {
+        await stream.close();
       }
     });
   } catch (error) {
