@@ -31,6 +31,8 @@ export const systemPrompt = `
 
     10. If there are discrepancies between the chat history and the indexed documents, prioritize the most recent and relevant information, and explain the discrepancy if necessary.
 
+    11. Always return your answer in markdown format.
+
   Remember, your goal is to provide accurate, context-specific answers while always citing your sources and maintaining coherence with the ongoing conversation.
 
   Context: {context}
