@@ -2,13 +2,22 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { SelectedDirectoryContext } from '@/context/directory-dialog';
 import { Message as Msg } from '@/types';
-import { FormEvent, useContext, useState } from 'react';
+import { FormEvent, useContext, useEffect, useRef, useState } from 'react';
 import Message from '../message';
 
 export default function ChatView() {
   const { directory } = useContext(SelectedDirectoryContext);
   const [messages, setMessages] = useState<Msg[] | []>([]);
   const [inputMessage, setInputMessage] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const handleSubmitMessage = async (e: FormEvent) => {
     e.preventDefault();
@@ -84,28 +93,38 @@ export default function ChatView() {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmitMessage(e);
+    }
+  };
+
   return (
-    <div className='h-full'>
-      <div className='mx-auto flex h-full w-3/4 flex-col items-center justify-between'>
-        {/* chat timeline */}
-        <div className='basis my-2 w-full shrink grow rounded-md border border-zinc-200 p-2'>
-          {messages.map((message) => (
-            <Message message={message} key={message.id} />
-          ))}
+    <div className='flex h-full flex-col'>
+      <div className='mx-auto flex h-full w-3/4 flex-col'>
+        {/* Chat messages container - scrollable */}
+        <div className='my-2 flex-1 overflow-y-auto rounded-md border border-zinc-200 p-2'>
+          <div className='space-y-2'>
+            {messages.map((message) => (
+              <Message message={message} key={message.id} />
+            ))}
+            {/* Invisible div to scroll to */}
+            <div ref={messagesEndRef} />
+          </div>
         </div>
-        {/* chat footer and input */}
-        <form
-          className='grid w-full shrink grow-0 basis-auto gap-2'
-          onSubmit={handleSubmitMessage}
-        >
+
+        {/* Chat input - fixed at bottom */}
+        <div className='grid w-full flex-shrink-0 gap-2 pb-2'>
           <Textarea
             placeholder='Type your message here.'
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSubmitMessage(e)}
+            onKeyDown={handleKeyDown}
+            className='resize-none'
           />
-          <Button>Send message</Button>
-        </form>
+          <Button onClick={handleSubmitMessage}>Send message</Button>
+        </div>
       </div>
     </div>
   );
