@@ -104,7 +104,7 @@ export default function ChatView() {
     <div className='flex h-full flex-col'>
       <div className='mx-auto flex h-full w-3/4 flex-col'>
         {/* Chat messages container - scrollable */}
-        <div className='my-2 flex-1 overflow-y-auto rounded-md border border-zinc-200 p-2'>
+        <div className='scrollbar-thin scrollbar-thumb-zinc-200 my-2 flex-1 overflow-y-auto rounded-md border border-zinc-200 p-2'>
           <div className='space-y-2'>
             {messages.map((message) => (
               <Message message={message} key={message.id} />
