@@ -1,5 +1,5 @@
 import { Context } from 'hono';
-import { db } from '../lib/db';
+import { db } from '../../db';
 
 export const retrieveIndexedDirectory = async (c: Context) => {
   const directory = c.req.query('directory');

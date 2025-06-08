@@ -13,7 +13,7 @@ import { createStuffDocumentsChain } from 'langchain/chains/combine_documents';
 import { createHistoryAwareRetriever } from 'langchain/chains/history_aware_retriever';
 import { createRetrievalChain } from 'langchain/chains/retrieval';
 import { ChatMessageHistory } from 'langchain/stores/message/in_memory';
-import { db } from '../lib/db';
+import { db } from '../../db';
 import { contextualPrompt, systemPrompt } from '../lib/prompts';
 
 let store: Record<string, BaseChatMessageHistory> = {};

@@ -9,7 +9,7 @@ import { DirectoryLoader } from 'langchain/document_loaders/fs/directory';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { access } from 'node:fs/promises';
-import { db } from '../lib/db';
+import { db } from '../../db';
 
 export const indexDirectory = async (c: Context) => {
   const { directoryPath, name } = await c.req.json();
