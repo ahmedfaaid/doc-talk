@@ -26,7 +26,6 @@ function getSessionHistory(sessionId: string): BaseChatMessageHistory {
 }
 
 const llm = new ChatOpenAI({
-  // model: 'TheBloke/Mistral-7B-Instruct-v0.2-GGUF',
   model: 'meta-llama-3.1-8b-instruct',
   temperature: 0.7,
   apiKey: 'lm-studio',
