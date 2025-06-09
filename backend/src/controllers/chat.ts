@@ -12,17 +12,14 @@ import { streamSSE } from 'hono/streaming';
 import { createStuffDocumentsChain } from 'langchain/chains/combine_documents';
 import { createHistoryAwareRetriever } from 'langchain/chains/history_aware_retriever';
 import { createRetrievalChain } from 'langchain/chains/retrieval';
-import { ChatMessageHistory } from 'langchain/stores/message/in_memory';
 import { db } from '../../db';
+import { addMessage } from '../../db/message';
+import { createThread, getThread } from '../../db/thread';
+import { DbChatMessageHistory } from '../lib/chat';
 import { contextualPrompt, systemPrompt } from '../lib/prompts';
 
-let store: Record<string, BaseChatMessageHistory> = {};
-
 function getSessionHistory(sessionId: string): BaseChatMessageHistory {
-  if (!(sessionId in store)) {
-    store[sessionId] = new ChatMessageHistory();
-  }
-  return store[sessionId];
+  return new DbChatMessageHistory(sessionId);
 }
 
 const llm = new ChatOpenAI({
@@ -43,9 +40,34 @@ const embeddings = new OpenAIEmbeddings({
 });
 
 export const chat = async (c: Context) => {
-  const { query, directoryPath } = await c.req.json();
-
   try {
+    const { query, directoryPath, threadId, title } = await c.req.json();
+
+    if (!query) {
+      return c.json({ message: 'Query is required', code: 400 }, 400);
+    }
+
+    if (!directoryPath) {
+      return c.json({ message: 'Directory path is required', code: 400 }, 400);
+    }
+
+    // Handle thread creation/retrieval
+    let currentThreadId = threadId;
+    if (!currentThreadId) {
+      const thread = createThread(title || `Chat: ${directoryPath}`, {
+        directoryPath,
+        createdAt: new Date().toISOString()
+      });
+      currentThreadId = thread.id;
+    }
+
+    // Verify thread exists
+    const thread = getThread(currentThreadId);
+    if (!thread) {
+      return c.json({ message: 'Thread not found', code: 404 }, 404);
+    }
+
+    // Check if directory is indexed
     const indexedDirectory = db.prepare(`
       SELECT id, name, directory_path, vector_path, indexed FROM directories WHERE directory_path = $directory_path  
     `);
@@ -64,6 +86,10 @@ export const chat = async (c: Context) => {
       );
     }
 
+    // Add user message to database
+    addMessage(currentThreadId, 'user', query);
+
+    // Retrieve the vector store contents
     const vectorStoreBasePath = 'vectorstore';
     const vectorStore = await HNSWLib.load(
       `${vectorStoreBasePath}/${foundDirectory.name}`,
@@ -72,6 +98,7 @@ export const chat = async (c: Context) => {
 
     const retriever = vectorStore.asRetriever();
 
+    // Construct prompts
     const prompt1 = ChatPromptTemplate.fromMessages([
       ['assistant', contextualPrompt],
       new MessagesPlaceholder('chat_history'),
@@ -84,6 +111,7 @@ export const chat = async (c: Context) => {
       ['user', '{input}']
     ]);
 
+    // Create history aware retriever, qa chain and rag chains
     const historyAwareRetriever = await createHistoryAwareRetriever({
       llm,
       retriever,
@@ -112,22 +140,62 @@ export const chat = async (c: Context) => {
       Math.random().toString(16) + '-' + Date.now().toString(32)
     );
 
+    // Stream the response from the llm
     return streamSSE(c, async stream => {
+      let fullResponse = '';
+      let sources: any[] = [];
+
       try {
         for await (const s of await conversationalRagChain.stream(
           { input: query },
-          { configurable: { sessionId: uniqueId } }
+          { configurable: { sessionId: currentThreadId } }
         )) {
+          // Collect the full response and sources
+          if (s.answer) {
+            fullResponse += s.answer;
+          }
+          if (s.context) {
+            sources = s.context;
+          }
+
           await stream.writeSSE({
-            data: JSON.stringify(s),
+            data: JSON.stringify({
+              ...s,
+              threadId: currentThreadId
+            }),
             event: 'answer',
             id: String(Date.now())
           });
         }
+
+        // After streaming is complete, save the assistant's response to database
+        if (fullResponse) {
+          addMessage(currentThreadId, 'assistant', fullResponse, {
+            sources: sources.map(doc => ({
+              pageContent: doc.pageContent,
+              metadata: doc.metadata
+            })),
+            directory: foundDirectory.name,
+            timestamp: new Date().toISOString()
+          });
+        }
+
+        // Send final message with thread info
+        await stream.writeSSE({
+          data: JSON.stringify({
+            threadId: currentThreadId,
+            completed: true
+          }),
+          event: 'complete',
+          id: String(Date.now())
+        });
       } catch (error) {
         console.error('Streaming error: ' + error);
         await stream.writeSSE({
-          data: JSON.stringify({ error: 'Streaming failed' }),
+          data: JSON.stringify({
+            error: 'Streaming failed',
+            threadId: currentThreadId
+          }),
           event: 'error',
           id: String(Date.now())
         });
