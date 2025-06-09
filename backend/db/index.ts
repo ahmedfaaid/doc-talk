@@ -8,7 +8,7 @@ db.query(
     name TEXT NOT NULL UNIQUE,
     directory_path TEXT NOT NULL UNIQUE,
     vector_path TEXT NOT NULL UNIQUE,
-    indexed BOOLEAN NOT NULL DEFAULT 0
+    indexed BOOLEAN NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL
   )`
 ).run();
