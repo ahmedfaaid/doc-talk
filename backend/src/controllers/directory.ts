@@ -8,7 +8,7 @@ import { DirectoryLoader } from 'langchain/document_loaders/fs/directory';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { access } from 'node:fs/promises';
-import { addDirectory } from '../../db/directory';
+import { addDirectory, getDirectory } from '../../db/directory';
 import { embeddings } from '../lib/AI';
 import { createVectorStorePath } from '../lib/utils';
 
@@ -55,6 +55,46 @@ export const indexDirectory = async (c: Context) => {
     return c.json(
       { message: 'Directory indexed successfully', code: 201, directory },
       201
+    );
+  } catch (error) {
+    return c.json(
+      { message: (error as Error).message, code: 500, directory: null },
+      500
+    );
+  }
+};
+
+export const retrieveIndexedDirectory = async (c: Context) => {
+  try {
+    const directoryPath = c.req.query('directory');
+
+    if (!directoryPath) {
+      return c.json(
+        { message: 'No directory provided', code: 400, directory: null },
+        400
+      );
+    }
+
+    const directory = getDirectory(directoryPath);
+
+    if (!directory) {
+      return c.json(
+        {
+          message: 'No directory has been indexed',
+          code: 400,
+          directory: null
+        },
+        400
+      );
+    }
+
+    return c.json(
+      {
+        message: 'Indexed directory retrieved successfully',
+        code: 200,
+        directory
+      },
+      200
     );
   } catch (error) {
     return c.json(
