@@ -1,6 +1,6 @@
 import { Database } from 'bun:sqlite';
 
-export const db = new Database('db/chat.sqlite', { create: true });
+export const db = new Database('db/chat.db', { create: true });
 
 db.query(
   `CREATE TABLE IF NOT EXISTS directories (
