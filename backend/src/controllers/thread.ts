@@ -1,5 +1,5 @@
 import { Context } from 'hono';
-import { createThread as ct, getAllThreads } from '../../db/thread';
+import { createThread as ct, getAllThreads, getThread } from '../../db/thread';
 
 export const createThread = async (c: Context) => {
   const { title, metadata } = await c.req.json();
@@ -25,5 +25,20 @@ export const getThreads = async (c: Context) => {
     return c.json(threads);
   } catch (error) {
     return c.json({ error: 'Failed to fetch threads' }, 500);
+  }
+};
+
+export const getOneThread = async (c: Context) => {
+  try {
+    const threadId = c.req.param('id');
+    const thread = getThread(threadId);
+
+    if (!thread) {
+      return c.json({ message: 'Thread not found', code: 404 }, 404);
+    }
+
+    return c.json(thread);
+  } catch (error) {
+    return c.json({ error: 'Failed to fetch thread' }, 500);
   }
 };
