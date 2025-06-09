@@ -17,6 +17,7 @@ import { addMessage } from '../../db/message';
 import { createThread, getThread } from '../../db/thread';
 import { DbChatMessageHistory } from '../lib/chat';
 import { contextualPrompt, systemPrompt } from '../lib/prompts';
+import { getLastPathSegment } from '../lib/utils';
 
 function getSessionHistory(sessionId: string): BaseChatMessageHistory {
   return new DbChatMessageHistory(sessionId);
@@ -54,10 +55,13 @@ export const chat = async (c: Context) => {
     // Handle thread creation/retrieval
     let currentThreadId = threadId;
     if (!currentThreadId) {
-      const thread = createThread(title || `Chat: ${directoryPath}`, {
-        directoryPath,
-        createdAt: new Date().toISOString()
-      });
+      const thread = createThread(
+        title || `Chat: ${getLastPathSegment(directoryPath)}`,
+        {
+          directoryPath,
+          createdAt: new Date().toISOString()
+        }
+      );
       currentThreadId = thread.id;
     }
 
