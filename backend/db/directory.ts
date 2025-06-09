@@ -35,6 +35,6 @@ export const addDirectory = (
 };
 
 export const getDirectory = (path: string): Directory | null => {
-  const stmt = db.prepare('SELECT * FROM directories WHERE path = ?');
+  const stmt = db.prepare('SELECT * FROM directories WHERE directory_path = ?');
   return stmt.get(path) as Directory | null;
 };
