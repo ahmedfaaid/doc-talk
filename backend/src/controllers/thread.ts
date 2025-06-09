@@ -2,9 +2,9 @@ import { Context } from 'hono';
 import { createThread as ct, getAllThreads, getThread } from '../../db/thread';
 
 export const createThread = async (c: Context) => {
-  const { title, metadata } = await c.req.json();
-
   try {
+    const { title, metadata } = await c.req.json();
+
     if (!title) {
       return c.json({ message: 'Title is required', code: 400 }, 400);
     }
