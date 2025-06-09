@@ -4,11 +4,12 @@ export const db = new Database('db/chat.db', { create: true });
 
 db.query(
   `CREATE TABLE IF NOT EXISTS directories (
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    id TEXT NOT NULL PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     directory_path TEXT NOT NULL UNIQUE,
     vector_path TEXT NOT NULL UNIQUE,
     indexed BOOLEAN NOT NULL DEFAULT 0
+    created_at TEXT NOT NULL
   )`
 ).run();
 
