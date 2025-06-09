@@ -5,40 +5,23 @@ import {
   MessagesPlaceholder
 } from '@langchain/core/prompts';
 import { RunnableWithMessageHistory } from '@langchain/core/runnables';
-import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai';
 import 'dotenv/config';
 import { Context } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import { createStuffDocumentsChain } from 'langchain/chains/combine_documents';
 import { createHistoryAwareRetriever } from 'langchain/chains/history_aware_retriever';
 import { createRetrievalChain } from 'langchain/chains/retrieval';
-import { db } from '../../db';
+import { getDirectory } from '../../db/directory';
 import { addMessage } from '../../db/message';
 import { createThread, getThread } from '../../db/thread';
+import { embeddings, llm } from '../lib/AI';
 import { DbChatMessageHistory } from '../lib/chat';
 import { contextualPrompt, systemPrompt } from '../lib/prompts';
-import { getLastPathSegment } from '../lib/utils';
+import { createVectorStorePath, getLastPathSegment } from '../lib/utils';
 
 function getSessionHistory(sessionId: string): BaseChatMessageHistory {
   return new DbChatMessageHistory(sessionId);
 }
-
-const llm = new ChatOpenAI({
-  model: 'meta-llama-3.1-8b-instruct',
-  temperature: 0.7,
-  apiKey: 'lm-studio',
-  configuration: {
-    baseURL: 'http://localhost:1234/v1'
-  }
-});
-
-const embeddings = new OpenAIEmbeddings({
-  apiKey: 'lm-studio',
-  model: 'nomic-ai/nomic-embed-text-v1.5-GGUF',
-  configuration: {
-    baseURL: 'http://localhost:1234/v1'
-  }
-});
 
 export const chat = async (c: Context) => {
   try {
@@ -72,14 +55,9 @@ export const chat = async (c: Context) => {
     }
 
     // Check if directory is indexed
-    const indexedDirectory = db.prepare(`
-      SELECT id, name, directory_path, vector_path, indexed FROM directories WHERE directory_path = $directory_path  
-    `);
-    const foundDirectory: any = indexedDirectory.get({
-      $directory_path: directoryPath
-    });
+    const directory = getDirectory(directoryPath);
 
-    if (!foundDirectory) {
+    if (!directory) {
       return c.json(
         {
           message: 'The selected directory has not been indexed',
@@ -94,11 +72,8 @@ export const chat = async (c: Context) => {
     addMessage(currentThreadId, 'user', query);
 
     // Retrieve the vector store contents
-    const vectorStoreBasePath = 'vectorstore';
-    const vectorStore = await HNSWLib.load(
-      `${vectorStoreBasePath}/${foundDirectory.name}`,
-      embeddings
-    );
+    const vector_path = createVectorStorePath(directory.name);
+    const vectorStore = await HNSWLib.load(vector_path, embeddings);
 
     const retriever = vectorStore.asRetriever();
 
@@ -175,7 +150,7 @@ export const chat = async (c: Context) => {
               pageContent: doc.pageContent,
               metadata: doc.metadata
             })),
-            directory: foundDirectory.name,
+            directory: directory.name,
             timestamp: new Date().toISOString()
           });
         }
