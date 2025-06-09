@@ -1,5 +1,10 @@
 import { Context } from 'hono';
-import { createThread as ct, getAllThreads, getThread } from '../../db/thread';
+import {
+  createThread as ct,
+  deleteThread,
+  getAllThreads,
+  getThread
+} from '../../db/thread';
 
 export const createThread = async (c: Context) => {
   try {
@@ -40,5 +45,20 @@ export const getOneThread = async (c: Context) => {
     return c.json(thread);
   } catch (error) {
     return c.json({ error: 'Failed to fetch thread' }, 500);
+  }
+};
+
+export const deleteOneThread = async (c: Context) => {
+  try {
+    const threadId = c.req.param('id');
+    const result = deleteThread(threadId);
+
+    if (result.changes === 0) {
+      return c.json({ message: 'Thread not found', code: 404 }, 404);
+    }
+
+    return c.json({ success: true });
+  } catch (error) {
+    return c.json({ error: 'Failed to delete thread' }, 500);
   }
 };
