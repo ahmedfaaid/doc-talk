@@ -9,7 +9,9 @@ export const messages = sqliteTable(
       .primaryKey()
       .default(randomUUID())
       .notNull(),
-    thread_id: text('thread_id', { mode: 'text' }).notNull(),
+    thread_id: text('thread_id', { mode: 'text' })
+      .notNull()
+      .references(() => threads.id, { onDelete: 'cascade' }),
     role: text('role', {
       mode: 'text',
       enum: ['user', 'assistant', 'system']
@@ -18,11 +20,7 @@ export const messages = sqliteTable(
     timestamp: text('timestamp', { mode: 'text' })
       .notNull()
       .default(new Date().toISOString()),
-    metadata: text('metadata', { mode: 'text' }).notNull().default('{}'),
-    // Foreign key constraint to threads table
-    thread_id_fk: text('thread_id_fk', { mode: 'text' })
-      .notNull()
-      .references(() => threads.id, { onDelete: 'cascade' })
+    metadata: text('metadata', { mode: 'text' }).default('{}')
   },
   table => [
     index('idx_messages_thread_id').on(table.thread_id),
