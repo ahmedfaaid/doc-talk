@@ -9,7 +9,7 @@ export const threads = sqliteTable(
       .default(randomUUID())
       .notNull(),
     title: text('title', { mode: 'text' }).notNull(),
-    metadata: text('metadata', { mode: 'text' }).notNull().default('{}'),
+    metadata: text('metadata', { mode: 'text' }).default('{}'),
     created_at: text('created_at', { mode: 'text' })
       .notNull()
       .default(new Date().toISOString()),
