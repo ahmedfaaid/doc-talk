@@ -11,9 +11,9 @@ import { streamSSE } from 'hono/streaming';
 import { createStuffDocumentsChain } from 'langchain/chains/combine_documents';
 import { createHistoryAwareRetriever } from 'langchain/chains/history_aware_retriever';
 import { createRetrievalChain } from 'langchain/chains/retrieval';
-import { getDirectory } from '../../db/directory';
-import { addMessage } from '../../db/message';
-import { createThread, getThread } from '../../db/thread';
+import { getDirectory } from '../../db/operations/directory';
+import { addMessage } from '../../db/operations/message';
+import { createThread, getThread } from '../../db/operations/thread';
 import { embeddings, llm } from '../lib/AI';
 import { DbChatMessageHistory } from '../lib/chat';
 import { contextualPrompt, systemPrompt } from '../lib/prompts';
@@ -38,7 +38,7 @@ export const chat = async (c: Context) => {
     // Handle thread creation/retrieval
     let currentThreadId = threadId;
     if (!currentThreadId) {
-      const thread = createThread(
+      const thread = await createThread(
         title || `Chat: ${getLastPathSegment(directoryPath)}`,
         {
           directoryPath,
@@ -49,13 +49,13 @@ export const chat = async (c: Context) => {
     }
 
     // Verify thread exists
-    const thread = getThread(currentThreadId);
+    const thread = await getThread(currentThreadId);
     if (!thread) {
       return c.json({ message: 'Thread not found', code: 404 }, 404);
     }
 
     // Check if directory is indexed
-    const directory = getDirectory(directoryPath);
+    const directory = await getDirectory(directoryPath);
 
     if (!directory) {
       return c.json(
@@ -69,7 +69,7 @@ export const chat = async (c: Context) => {
     }
 
     // Add user message to database
-    addMessage(currentThreadId, 'user', query);
+    await addMessage(currentThreadId, 'user', query);
 
     // Retrieve the vector store contents
     const vector_path = createVectorStorePath(directory.name);
@@ -145,7 +145,7 @@ export const chat = async (c: Context) => {
 
         // After streaming is complete, save the assistant's response to database
         if (fullResponse) {
-          addMessage(currentThreadId, 'assistant', fullResponse, {
+          await addMessage(currentThreadId, 'assistant', fullResponse, {
             sources: sources.map(doc => ({
               pageContent: doc.pageContent,
               metadata: doc.metadata
