@@ -5,7 +5,7 @@ import {
   HumanMessage,
   SystemMessage
 } from '@langchain/core/messages';
-import { getMessages } from '../../db/message';
+import { getMessages } from '../../db/operations/message';
 
 export class DbChatMessageHistory extends BaseChatMessageHistory {
   public lc_namespace = ['langchain', 'memory', 'chat_message_histories'];
@@ -18,8 +18,8 @@ export class DbChatMessageHistory extends BaseChatMessageHistory {
     this.loadFromDatabase();
   }
 
-  private loadFromDatabase() {
-    const dbMessages = getMessages(this.threadId);
+  private async loadFromDatabase() {
+    const dbMessages = await getMessages(this.threadId);
     this.messages = dbMessages.map(msg => {
       switch (msg.role) {
         case 'user':
