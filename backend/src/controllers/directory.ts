@@ -8,7 +8,7 @@ import { DirectoryLoader } from 'langchain/document_loaders/fs/directory';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { access } from 'node:fs/promises';
-import { addDirectory, getDirectory } from '../../db/directory';
+import { addDirectory, getDirectory } from '../../db/operations/directory';
 import { embeddings } from '../lib/AI';
 import { createVectorStorePath } from '../lib/utils';
 
@@ -50,7 +50,12 @@ export const indexDirectory = async (c: Context) => {
     const vectorStore = await HNSWLib.fromDocuments(splitText, embeddings);
     await vectorStore.save(vector_path);
 
-    const directory = addDirectory(directoryPath, name, vector_path, true);
+    const directory = await addDirectory(
+      directoryPath,
+      name,
+      vector_path,
+      true
+    );
 
     return c.json(
       { message: 'Directory indexed successfully', code: 201, directory },
@@ -75,7 +80,7 @@ export const retrieveIndexedDirectory = async (c: Context) => {
       );
     }
 
-    const directory = getDirectory(directoryPath);
+    const directory = await getDirectory(directoryPath);
 
     if (!directory) {
       return c.json(
