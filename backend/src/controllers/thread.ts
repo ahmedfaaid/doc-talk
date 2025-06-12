@@ -4,7 +4,7 @@ import {
   deleteThread,
   getAllThreads,
   getThread
-} from '../../db/thread';
+} from '../../db/operations/thread';
 
 export const createThread = async (c: Context) => {
   try {
@@ -14,7 +14,7 @@ export const createThread = async (c: Context) => {
       return c.json({ message: 'Title is required', code: 400 }, 400);
     }
 
-    const thread = ct(title, metadata);
+    const thread = await ct(title, metadata);
     return c.json(thread, 201);
   } catch (error) {
     return c.json({ error: 'Failed to create thread' }, 500);
@@ -26,7 +26,7 @@ export const getThreads = async (c: Context) => {
     const limit = parseInt(c.req.query('limit') || '50');
     const offset = parseInt(c.req.query('offset') || '0');
 
-    const threads = getAllThreads(limit, offset);
+    const threads = await getAllThreads(limit, offset);
     return c.json(threads);
   } catch (error) {
     return c.json({ error: 'Failed to fetch threads' }, 500);
@@ -36,7 +36,7 @@ export const getThreads = async (c: Context) => {
 export const getOneThread = async (c: Context) => {
   try {
     const threadId = c.req.param('id');
-    const thread = getThread(threadId);
+    const thread = await getThread(threadId);
 
     if (!thread) {
       return c.json({ message: 'Thread not found', code: 404 }, 404);
@@ -51,11 +51,7 @@ export const getOneThread = async (c: Context) => {
 export const deleteOneThread = async (c: Context) => {
   try {
     const threadId = c.req.param('id');
-    const result = deleteThread(threadId);
-
-    if (result.changes === 0) {
-      return c.json({ message: 'Thread not found', code: 404 }, 404);
-    }
+    await deleteThread(threadId);
 
     return c.json({ success: true });
   } catch (error) {
