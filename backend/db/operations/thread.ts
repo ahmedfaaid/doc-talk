@@ -66,11 +66,6 @@ export const updateThread = async (
   return update;
 };
 
-export const deleteThread = async (threadId: string): Promise<ChatThread> => {
-  const [thread] = await db
-    .delete(threads)
-    .where(eq(threads.id, threadId))
-    .returning();
-
-  return thread;
+export const deleteThread = async (threadId: string): Promise<void> => {
+  await db.delete(threads).where(eq(threads.id, threadId)).returning();
 };
