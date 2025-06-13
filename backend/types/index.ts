@@ -23,3 +23,17 @@ export type ChatMessage = {
   timestamp: string;
   metadata: string | null;
 };
+
+export type User = {
+  id: string;
+  email: string;
+  password: string;
+  first_name: string;
+  last_name: string;
+  company: string | null;
+  is_company: boolean;
+  role: 'user' | 'admin' | 'superadmin';
+  parent_id: string | null;
+  created_at: string;
+  updated_at: string;
+};
