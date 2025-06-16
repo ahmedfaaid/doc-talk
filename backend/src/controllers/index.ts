@@ -1,3 +1,4 @@
+import { login, register } from './auth';
 import { chat } from './chat';
 import { indexDirectory, retrieveIndexedDirectory } from './directory';
 import {
@@ -15,6 +16,8 @@ export {
   getOneThread,
   getThreads,
   indexDirectory,
+  login,
+  register,
   retrieveIndexedDirectory,
   updateUser
 };
