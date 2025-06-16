@@ -9,6 +9,8 @@ import {
   getOneThread,
   getThreads,
   indexDirectory,
+  login,
+  register,
   retrieveIndexedDirectory,
   updateUser
 } from './controllers';
@@ -30,6 +32,8 @@ app.get('/threads', getThreads);
 app.get('/threads/:id', getOneThread);
 app.delete('/threads/:id', deleteOneThread);
 app.put('/users/:id', updateUser);
+app.post('/auth/login', login);
+app.post('/auth/register', register);
 
 export default {
   port: 5155,
