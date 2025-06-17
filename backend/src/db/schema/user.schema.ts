@@ -44,8 +44,17 @@ export const insertUserSchema = createInsertSchema(users).omit({
   updated_at: true
 });
 
-export const selectUserSchema = createInsertSchema(users).omit({
-  password: true
+export const selectUserSchema = z.object({
+  id: z.string().uuid(),
+  email: z.string().email(),
+  first_name: z.string(),
+  last_name: z.string(),
+  company: z.string().optional(),
+  is_company: z.boolean(),
+  role: z.enum(['user', 'admin', 'superadmin']),
+  parent_id: z.string().uuid().optional(),
+  created_at: z.string().datetime(),
+  updated_at: z.string().datetime()
 });
 
 export const updateUserSchema = z
