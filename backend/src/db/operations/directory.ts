@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto';
 import { eq } from 'drizzle-orm';
 import { db } from '..';
 import { Directory } from '../../types';
-import { directories } from '../schema/directory';
+import { directories } from '../schema/directory.schema';
 
 export const addDirectory = async (
   path: string,

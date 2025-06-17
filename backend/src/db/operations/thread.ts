@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto';
 import { desc, eq } from 'drizzle-orm';
 import { db } from '..';
 import { ChatThread } from '../../types';
-import { threads } from '../schema/thread';
+import { threads } from '../schema/thread.schema';
 
 export const createThread = async (
   title: string,

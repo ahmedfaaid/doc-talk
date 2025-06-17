@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto';
 import { and, desc, eq, like } from 'drizzle-orm';
 import { db } from '..';
 import { ChatMessage } from '../../types';
-import { messages } from '../schema/message';
+import { messages } from '../schema/message.schema';
 import { updateThread } from './thread';
 
 export const addMessage = async (

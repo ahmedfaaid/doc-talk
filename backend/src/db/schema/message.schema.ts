@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
 import { index, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
-import { threads } from './thread';
+import { threads } from './thread.schema';
 
 export const messages = sqliteTable(
   'messages',

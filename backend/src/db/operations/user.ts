@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto';
 import { asc, eq } from 'drizzle-orm';
 import { db } from '..';
 import { User } from '../../types';
-import { users } from '../schema/user';
+import { users } from '../schema/user.schema';
 
 export const createUser = async (user: Omit<User, 'id'>): Promise<User> => {
   const u: User = {
