@@ -1,7 +1,12 @@
 import { Context } from 'hono';
 import { updateUser as updtUser } from '../db/operations/user.operation';
 import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from '../lib/constants';
-import { NOT_FOUND, OK, UNPROCESSABLE_ENTITY } from '../lib/http-status-codes';
+import {
+  INTERNAL_SERVER_ERROR,
+  NOT_FOUND,
+  OK,
+  UNPROCESSABLE_ENTITY
+} from '../lib/http-status-codes';
 import { NOT_FOUND as NOT_FOUND_PHRASE } from '../lib/http-status-phrases';
 import { UpdateUserRoute } from '../routes/user/user.route';
 import { AppRouteHandler } from '../types';
@@ -46,6 +51,6 @@ export const updateUser: AppRouteHandler<UpdateUserRoute> = async (
 
     return c.json(rest, OK);
   } catch (error) {
-    return c.json({ message: 'Failed to update user' }, 500);
+    return c.json({ message: 'Failed to update user' }, INTERNAL_SERVER_ERROR);
   }
 };
