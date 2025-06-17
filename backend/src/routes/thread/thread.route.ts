@@ -35,4 +35,27 @@ export const createThread = createRoute({
   }
 });
 
+export const getThreads = createRoute({
+  tags,
+  method: 'get',
+  path: '/threads',
+  request: {
+    query: z.object({
+      limit: z.string().optional(),
+      offset: z.string().optional()
+    })
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      z.array(selectThreadSchema),
+      'List of threads'
+    ),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      serverErrorSchema,
+      'Server error'
+    )
+  }
+});
+
 export type CreateThreadRoute = typeof createThread;
+export type GetThreadsRoute = typeof getThreads;
