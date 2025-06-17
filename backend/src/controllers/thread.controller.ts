@@ -47,10 +47,7 @@ export const getThreads: AppRouteHandler<GetThreadsRoute> = async (
     const threads = await getAllThreads(limit, offset);
     return c.json(threads, OK);
   } catch (error) {
-    return c.json(
-      { message: 'Failed to fetch threads' },
-      INTERNAL_SERVER_ERROR
-    );
+    return c.json({ message: (error as Error).message }, INTERNAL_SERVER_ERROR);
   }
 };
 
