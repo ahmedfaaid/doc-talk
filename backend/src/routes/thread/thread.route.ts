@@ -81,6 +81,28 @@ export const getOneThread = createRoute({
   }
 });
 
+export const deleteOneThread = createRoute({
+  tags,
+  method: 'delete',
+  path: '/threads/{id}',
+  request: {
+    params: userIdParamsSchema
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      z.object({
+        success: z.boolean()
+      }),
+      'Thread deleted successfully'
+    ),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      serverErrorSchema,
+      'Server error'
+    )
+  }
+});
+
 export type CreateThreadRoute = typeof createThread;
 export type GetThreadsRoute = typeof getThreads;
 export type GetOneThreadRoute = typeof getOneThread;
+export type DeleteOneThread = typeof deleteOneThread;
