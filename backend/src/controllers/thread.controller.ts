@@ -14,6 +14,7 @@ import {
 } from '../lib/http-status-codes';
 import {
   CreateThreadRoute,
+  DeleteOneThread,
   GetOneThreadRoute,
   GetThreadsRoute
 } from '../routes/thread/thread.route';
@@ -73,13 +74,15 @@ export const getOneThread: AppRouteHandler<GetOneThreadRoute> = async (
   }
 };
 
-export const deleteOneThread = async (c: Context) => {
+export const deleteOneThread: AppRouteHandler<DeleteOneThread> = async (
+  c: Context
+) => {
   try {
     const threadId = c.req.param('id');
     await deleteThread(threadId);
 
-    return c.json({ success: true });
+    return c.json({ success: true }, OK);
   } catch (error) {
-    return c.json({ error: 'Failed to delete thread' }, 500);
+    return c.json({ message: (error as Error).message }, INTERNAL_SERVER_ERROR);
   }
 };
