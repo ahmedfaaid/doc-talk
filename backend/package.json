@@ -6,6 +6,7 @@
     "push:migrations": "bun drizzle-kit push"
   },
   "dependencies": {
+    "@hono/zod-openapi": "^0.19.8",
     "@huggingface/inference": "2",
     "@langchain/community": "^0.3.6",
     "@langchain/core": "^0.3.13",
@@ -13,12 +14,14 @@
     "@libsql/client": "^0.15.9",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.44.2",
+    "drizzle-zod": "^0.8.2",
     "hnswlib-node": "^3.0.0",
     "hono": "^4.6.5",
     "langchain": "^0.3.2",
     "mammoth": "^1.8.0",
     "officeparser": "^4.2.0",
-    "pdf-parse": "^1.1.1"
+    "pdf-parse": "^1.1.1",
+    "zod": "^3.25.67"
   },
   "devDependencies": {
     "@types/bun": "latest",
