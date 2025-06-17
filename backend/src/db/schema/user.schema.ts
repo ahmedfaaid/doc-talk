@@ -49,10 +49,10 @@ export const selectUserSchema = z.object({
   email: z.string().email(),
   first_name: z.string(),
   last_name: z.string(),
-  company: z.string().optional(),
+  company: z.string().nullable(),
   is_company: z.boolean(),
   role: z.enum(['user', 'admin', 'superadmin']),
-  parent_id: z.string().uuid().optional(),
+  parent_id: z.string().uuid().nullable(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime()
 });
