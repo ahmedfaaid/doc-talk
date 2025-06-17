@@ -5,6 +5,10 @@ export const notFoundSchema = createMessageObjectSchema(
   HttpStatusPhrases.NOT_FOUND
 );
 
+export const serverErrorSchema = createMessageObjectSchema(
+  HttpStatusPhrases.INTERNAL_SERVER_ERROR
+);
+
 export const ZOD_ERROR_MESSAGES = {
   REQUIRED: 'Required',
   EXPECTED_NUMBER: 'Expected number, received nan',
