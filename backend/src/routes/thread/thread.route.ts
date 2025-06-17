@@ -3,9 +3,10 @@ import {
   insertThreadSchema,
   selectThreadSchema
 } from '../../db/schema/thread.schema';
-import { serverErrorSchema } from '../../lib/constants';
+import { notFoundSchema, serverErrorSchema } from '../../lib/constants';
 import * as HttpStatusCodes from '../../lib/http-status-codes';
 import { jsonContent, jsonContentRequired } from '../../lib/json-content';
+import userIdParamsSchema from '../../lib/user-id-params';
 
 const tags = ['threads'];
 
@@ -57,5 +58,29 @@ export const getThreads = createRoute({
   }
 });
 
+export const getOneThread = createRoute({
+  tags,
+  method: 'get',
+  path: '/threads/{id}',
+  request: {
+    params: userIdParamsSchema
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      selectThreadSchema,
+      'The requested thread'
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
+      notFoundSchema,
+      'Thread not found'
+    ),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      serverErrorSchema,
+      'Server error'
+    )
+  }
+});
+
 export type CreateThreadRoute = typeof createThread;
 export type GetThreadsRoute = typeof getThreads;
+export type GetOneThreadRoute = typeof getOneThread;
