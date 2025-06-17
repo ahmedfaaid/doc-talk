@@ -1,10 +1,13 @@
 import { createRoute } from '@hono/zod-openapi';
-import { selectUserSchema, updateUserSchema } from '../db/schema/user.schema';
-import { notFoundSchema } from '../lib/constants';
-import createErrorSchema from '../lib/create-error-schema';
-import * as HttpStatusCodes from '../lib/http-status-codes';
-import { jsonContent, jsonContentRequired } from '../lib/json-content';
-import userIdParamsSchema from '../lib/user-id-params';
+import {
+  selectUserSchema,
+  updateUserSchema
+} from '../../db/schema/user.schema';
+import { notFoundSchema } from '../../lib/constants';
+import createErrorSchema from '../../lib/create-error-schema';
+import * as HttpStatusCodes from '../../lib/http-status-codes';
+import { jsonContent, jsonContentRequired } from '../../lib/json-content';
+import userIdParamsSchema from '../../lib/user-id-params';
 
 const tags = ['users'];
 
