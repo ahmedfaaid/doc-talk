@@ -13,6 +13,11 @@ import {
   getDirectory
 } from '../db/operations/directory.operation';
 import { embeddings } from '../lib/AI';
+import {
+  CREATED,
+  INTERNAL_SERVER_ERROR,
+  NOT_FOUND
+} from '../lib/http-status-codes';
 import { createVectorStorePath } from '../lib/utils';
 import { IndexDirectoryRoute } from '../routes/directory/directory.route';
 import { AppRouteHandler } from '../types';
@@ -41,10 +46,10 @@ export const indexDirectory: AppRouteHandler<IndexDirectoryRoute> = async (
         {
           message:
             'No text, pdf, csv, docx or pptx files found in the directory',
-          code: 404,
+          code: NOT_FOUND,
           directory: null
         },
-        404
+        NOT_FOUND
       );
     }
 
@@ -65,13 +70,17 @@ export const indexDirectory: AppRouteHandler<IndexDirectoryRoute> = async (
     );
 
     return c.json(
-      { message: 'Directory indexed successfully', code: 201, directory },
-      201
+      { message: 'Directory indexed successfully', code: CREATED, directory },
+      CREATED
     );
   } catch (error) {
     return c.json(
-      { message: (error as Error).message, code: 500, directory: null },
-      500
+      {
+        message: (error as Error).message,
+        code: INTERNAL_SERVER_ERROR,
+        directory: null
+      },
+      INTERNAL_SERVER_ERROR
     );
   }
 };
