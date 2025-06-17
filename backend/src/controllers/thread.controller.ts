@@ -8,9 +8,13 @@ import {
 import {
   BAD_REQUEST,
   CREATED,
-  INTERNAL_SERVER_ERROR
+  INTERNAL_SERVER_ERROR,
+  OK
 } from '../lib/http-status-codes';
-import { CreateThreadRoute } from '../routes/thread/thread.route';
+import {
+  CreateThreadRoute,
+  GetThreadsRoute
+} from '../routes/thread/thread.route';
 import { AppRouteHandler } from '../types';
 
 export const createThread: AppRouteHandler<CreateThreadRoute> = async (
@@ -33,15 +37,20 @@ export const createThread: AppRouteHandler<CreateThreadRoute> = async (
   }
 };
 
-export const getThreads = async (c: Context) => {
+export const getThreads: AppRouteHandler<GetThreadsRoute> = async (
+  c: Context
+) => {
   try {
     const limit = parseInt(c.req.query('limit') || '50');
     const offset = parseInt(c.req.query('offset') || '0');
 
     const threads = await getAllThreads(limit, offset);
-    return c.json(threads);
+    return c.json(threads, OK);
   } catch (error) {
-    return c.json({ error: 'Failed to fetch threads' }, 500);
+    return c.json(
+      { message: 'Failed to fetch threads' },
+      INTERNAL_SERVER_ERROR
+    );
   }
 };
 
