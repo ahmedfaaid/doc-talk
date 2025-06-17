@@ -7,8 +7,9 @@ export const updateUser = async (c: Context) => {
     const { user } = await c.req.json();
 
     const updatedUser = await updtUser(userId, user);
+    const { password, ...rest } = updatedUser;
 
-    return c.json(updatedUser, 200);
+    return c.json(rest, 200);
   } catch (error) {
     return c.json({ error: 'Failed to update user' }, 500);
   }
