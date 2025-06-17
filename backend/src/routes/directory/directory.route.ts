@@ -41,4 +41,27 @@ export const indexDirectory = createRoute({
   }
 });
 
+export const retrieveIndexedDirectory = createRoute({
+  tags,
+  method: 'get',
+  path: '/directories',
+  request: {
+    query: z.object({
+      directory: z.string()
+    })
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      selectDirectorySchema,
+      'The indexed directory'
+    ),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(notFoundSchema, 'No directory'),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      serverErrorSchema,
+      'Server error'
+    )
+  }
+});
+
 export type IndexDirectoryRoute = typeof indexDirectory;
+export type RetrieveIndexedDirectoryRoute = typeof retrieveIndexedDirectory;
