@@ -14,12 +14,17 @@ import {
 } from '../db/operations/directory.operation';
 import { embeddings } from '../lib/AI';
 import {
+  BAD_REQUEST,
   CREATED,
   INTERNAL_SERVER_ERROR,
-  NOT_FOUND
+  NOT_FOUND,
+  OK
 } from '../lib/http-status-codes';
 import { createVectorStorePath } from '../lib/utils';
-import { IndexDirectoryRoute } from '../routes/directory/directory.route';
+import {
+  IndexDirectoryRoute,
+  RetrieveIndexedDirectoryRoute
+} from '../routes/directory/directory.route';
 import { AppRouteHandler } from '../types';
 
 export const indexDirectory: AppRouteHandler<IndexDirectoryRoute> = async (
@@ -85,14 +90,20 @@ export const indexDirectory: AppRouteHandler<IndexDirectoryRoute> = async (
   }
 };
 
-export const retrieveIndexedDirectory = async (c: Context) => {
+export const retrieveIndexedDirectory: AppRouteHandler<
+  RetrieveIndexedDirectoryRoute
+> = async (c: Context) => {
   try {
     const directoryPath = c.req.query('directory');
 
     if (!directoryPath) {
       return c.json(
-        { message: 'No directory provided', code: 400, directory: null },
-        400
+        {
+          message: 'No directory provided',
+          code: BAD_REQUEST,
+          directory: null
+        },
+        BAD_REQUEST
       );
     }
 
@@ -102,25 +113,29 @@ export const retrieveIndexedDirectory = async (c: Context) => {
       return c.json(
         {
           message: 'No directory has been indexed',
-          code: 400,
+          code: BAD_REQUEST,
           directory: null
         },
-        400
+        BAD_REQUEST
       );
     }
 
     return c.json(
       {
         message: 'Indexed directory retrieved successfully',
-        code: 200,
+        code: OK,
         directory
       },
-      200
+      OK
     );
   } catch (error) {
     return c.json(
-      { message: (error as Error).message, code: 500, directory: null },
-      500
+      {
+        message: (error as Error).message,
+        code: INTERNAL_SERVER_ERROR,
+        directory: null
+      },
+      INTERNAL_SERVER_ERROR
     );
   }
 };
