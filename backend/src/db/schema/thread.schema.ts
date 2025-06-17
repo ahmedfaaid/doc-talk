@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { index, sqliteTable, text } from 'drizzle-orm/sqlite-core';
-import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import { z } from 'zod';
 
 export const threads = sqliteTable(
   'threads',
@@ -22,10 +22,15 @@ export const threads = sqliteTable(
   table => [index('idx_threads_updated_at').on(table.updated_at)]
 );
 
-export const insertThreadSchema = createInsertSchema(threads).omit({
-  id: true,
-  created_at: true,
-  updated_at: true
+export const insertThreadSchema = z.object({
+  title: z.string(),
+  metadata: z.any().optional()
 });
 
-export const selectThreadSchema = createSelectSchema(threads);
+export const selectThreadSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  metadata: z.string().nullable(),
+  created_at: z.string(),
+  updated_at: z.string()
+});
