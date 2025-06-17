@@ -1,7 +1,7 @@
 import { password } from 'bun';
 import { Context } from 'hono';
 import { sign } from 'hono/jwt';
-import { createUser, getUser } from '../../db/operations/user';
+import { createUser, getUser } from '../db/operations/user';
 
 export const login = async (c: Context) => {
   try {
