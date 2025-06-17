@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto';
 import { index, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { threads } from './thread';
 
 export const messages = sqliteTable(
@@ -27,3 +28,9 @@ export const messages = sqliteTable(
     index('idx_messages_timestamp').on(table.timestamp)
   ]
 );
+
+export const insertMessageSchema = createInsertSchema(messages).omit({
+  id: true
+});
+
+export const selectMessageSchema = createSelectSchema(messages);
