@@ -5,19 +5,31 @@ import {
   getAllThreads,
   getThread
 } from '../db/operations/thread.operation';
+import {
+  BAD_REQUEST,
+  CREATED,
+  INTERNAL_SERVER_ERROR
+} from '../lib/http-status-codes';
+import { CreateThreadRoute } from '../routes/thread/thread.route';
+import { AppRouteHandler } from '../types';
 
-export const createThread = async (c: Context) => {
+export const createThread: AppRouteHandler<CreateThreadRoute> = async (
+  c: Context
+) => {
   try {
     const { title, metadata } = await c.req.json();
 
     if (!title) {
-      return c.json({ message: 'Title is required', code: 400 }, 400);
+      return c.json(
+        { message: 'Title is required', code: BAD_REQUEST },
+        BAD_REQUEST
+      );
     }
 
     const thread = await ct(title, metadata);
-    return c.json(thread, 201);
+    return c.json(thread, CREATED);
   } catch (error) {
-    return c.json({ error: 'Failed to create thread' }, 500);
+    return c.json({ message: (error as Error).message }, INTERNAL_SERVER_ERROR);
   }
 };
 
