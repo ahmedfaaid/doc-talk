@@ -9,10 +9,12 @@ import {
   BAD_REQUEST,
   CREATED,
   INTERNAL_SERVER_ERROR,
+  NOT_FOUND,
   OK
 } from '../lib/http-status-codes';
 import {
   CreateThreadRoute,
+  GetOneThreadRoute,
   GetThreadsRoute
 } from '../routes/thread/thread.route';
 import { AppRouteHandler } from '../types';
@@ -51,18 +53,23 @@ export const getThreads: AppRouteHandler<GetThreadsRoute> = async (
   }
 };
 
-export const getOneThread = async (c: Context) => {
+export const getOneThread: AppRouteHandler<GetOneThreadRoute> = async (
+  c: Context
+) => {
   try {
     const threadId = c.req.param('id');
     const thread = await getThread(threadId);
 
     if (!thread) {
-      return c.json({ message: 'Thread not found', code: 404 }, 404);
+      return c.json(
+        { message: 'Thread not found', code: NOT_FOUND },
+        NOT_FOUND
+      );
     }
 
-    return c.json(thread);
+    return c.json(thread, OK);
   } catch (error) {
-    return c.json({ error: 'Failed to fetch thread' }, 500);
+    return c.json({ message: (error as Error).message }, INTERNAL_SERVER_ERROR);
   }
 };
 
