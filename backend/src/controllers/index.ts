@@ -1,5 +1,5 @@
-export * from './auth.controller';
-export * from './chat.controller';
-export * from './directory.controller';
-export * from './thread.controller';
-export * from './user.controller';
+export * as authController from './auth.controller';
+export * as chatController from './chat.controller';
+export * as directoryController from './directory.controller';
+export * as threadController from './thread.controller';
+export * as userController from './user.controller';
