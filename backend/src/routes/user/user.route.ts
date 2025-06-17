@@ -20,14 +20,7 @@ export const updateUser = createRoute({
     body: jsonContentRequired(updateUserSchema, 'The user data to update')
   },
   responses: {
-    [HttpStatusCodes.OK]: {
-      content: {
-        'application/json': {
-          schema: selectUserSchema
-        }
-      },
-      description: 'The updated user'
-    },
+    [HttpStatusCodes.OK]: jsonContent(selectUserSchema, 'The updated user'),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(updateUserSchema).or(
         createErrorSchema(userIdParamsSchema)
