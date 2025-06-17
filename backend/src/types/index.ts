@@ -1,3 +1,5 @@
+import { z } from '@hono/zod-openapi';
+
 export type Directory = {
   id: string;
   name: string;
@@ -37,3 +39,8 @@ export type User = {
   created_at: string;
   updated_at: string;
 };
+
+export type ZodSchema =
+  | z.ZodUnion<any>
+  | z.AnyZodObject
+  | z.ZodArray<z.AnyZodObject>;
