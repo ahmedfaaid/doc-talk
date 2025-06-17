@@ -5,7 +5,7 @@ import {
   HumanMessage,
   SystemMessage
 } from '@langchain/core/messages';
-import { getMessages } from '../../db/operations/message';
+import { getMessages } from '../db/operations/message.operation';
 
 export class DbChatMessageHistory extends BaseChatMessageHistory {
   public lc_namespace = ['langchain', 'memory', 'chat_message_histories'];
