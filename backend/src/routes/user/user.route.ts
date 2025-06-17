@@ -3,7 +3,7 @@ import {
   selectUserSchema,
   updateUserSchema
 } from '../../db/schema/user.schema';
-import { notFoundSchema } from '../../lib/constants';
+import { notFoundSchema, serverErrorSchema } from '../../lib/constants';
 import createErrorSchema from '../../lib/create-error-schema';
 import * as HttpStatusCodes from '../../lib/http-status-codes';
 import { jsonContent, jsonContentRequired } from '../../lib/json-content';
@@ -27,7 +27,11 @@ export const updateUser = createRoute({
       ),
       'Validation error for the user data or user ID'
     ),
-    [HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, 'User not found')
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, 'User not found'),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      serverErrorSchema,
+      'Server error'
+    )
   }
 });
 
