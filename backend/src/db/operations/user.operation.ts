@@ -42,7 +42,10 @@ export const getAllUsers = async (
 export const updateUser = async (
   userId: string,
   user: Partial<
-    Pick<User, 'email' | 'first_name' | 'last_name' | 'is_company' | 'role'>
+    Pick<
+      User,
+      'email' | 'first_name' | 'last_name' | 'company' | 'is_company' | 'role'
+    >
   >
 ): Promise<User> => {
   const [update] = await db
