@@ -8,7 +8,16 @@ const EnvSchema = z
     PORT: z.coerce.number().default(5155),
     NODE_ENV: z
       .enum(['development', 'production', 'test'])
-      .default('development')
+      .default('development'),
+    LOG_LEVEL: z.enum([
+      'fatal',
+      'error',
+      'warn',
+      'info',
+      'debug',
+      'trace',
+      'silent'
+    ])
   })
   .superRefine((input, ctx) => {
     if (!input.JWT_SECRET_KEY) {
