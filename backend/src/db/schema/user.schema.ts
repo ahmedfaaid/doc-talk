@@ -44,7 +44,9 @@ export const insertUserSchema = createInsertSchema(users).omit({
   updated_at: true
 });
 
-export const selectUserSchema = createInsertSchema(users);
+export const selectUserSchema = createInsertSchema(users).omit({
+  password: true
+});
 
 export const updateUserSchema = z
   .object({
