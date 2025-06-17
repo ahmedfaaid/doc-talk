@@ -1,7 +1,8 @@
 import { randomUUID } from 'crypto';
 import { relations } from 'drizzle-orm';
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
-import { createInsertSchema, createUpdateSchema } from 'drizzle-zod';
+import { createInsertSchema } from 'drizzle-zod';
+import { z } from 'zod';
 
 export const users = sqliteTable('users', {
   id: text('id', { mode: 'text' }).primaryKey().default(randomUUID()).notNull(),
@@ -45,11 +46,13 @@ export const insertUserSchema = createInsertSchema(users).omit({
 
 export const selectUserSchema = createInsertSchema(users);
 
-export const updateUserSchema = createUpdateSchema(users).partial({
-  email: true,
-  first_name: true,
-  last_name: true,
-  company: true,
-  is_company: true,
-  role: true
-});
+export const updateUserSchema = z
+  .object({
+    email: z.string().email().optional(),
+    first_name: z.string().optional(),
+    last_name: z.string().optional(),
+    company: z.string().optional(),
+    is_company: z.boolean().optional(),
+    role: z.enum(['user', 'admin', 'superadmin']).optional()
+  })
+  .strict();
