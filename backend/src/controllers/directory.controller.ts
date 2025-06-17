@@ -14,8 +14,12 @@ import {
 } from '../db/operations/directory.operation';
 import { embeddings } from '../lib/AI';
 import { createVectorStorePath } from '../lib/utils';
+import { IndexDirectoryRoute } from '../routes/directory/directory.route';
+import { AppRouteHandler } from '../types';
 
-export const indexDirectory = async (c: Context) => {
+export const indexDirectory: AppRouteHandler<IndexDirectoryRoute> = async (
+  c: Context
+) => {
   try {
     const { directoryPath, name } = await c.req.json();
 
