@@ -52,7 +52,11 @@ export const retrieveIndexedDirectory = createRoute({
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      selectDirectorySchema,
+      z.object({
+        message: z.string(),
+        code: z.number(),
+        directory: selectDirectorySchema
+      }),
       'The indexed directory'
     ),
     [HttpStatusCodes.BAD_REQUEST]: jsonContent(notFoundSchema, 'No directory'),
