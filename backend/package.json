@@ -1,5 +1,6 @@
 {
   "name": "doc-talk-client",
+  "version": "0.0.1",
   "scripts": {
     "dev": "bun run --hot src/index.ts",
     "gen:migrations": "bun drizzle-kit generate",
@@ -12,6 +13,7 @@
     "@langchain/core": "^0.3.13",
     "@langchain/openai": "^0.3.12",
     "@libsql/client": "^0.15.9",
+    "@scalar/hono-api-reference": "^0.9.4",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.44.2",
     "drizzle-zod": "^0.8.2",
