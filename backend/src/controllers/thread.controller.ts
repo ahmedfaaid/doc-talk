@@ -4,7 +4,7 @@ import {
   deleteThread,
   getAllThreads,
   getThread
-} from '../db/operations/thread';
+} from '../db/operations/thread.operation';
 
 export const createThread = async (c: Context) => {
   try {

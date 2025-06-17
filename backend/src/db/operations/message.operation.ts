@@ -3,7 +3,7 @@ import { and, desc, eq, like } from 'drizzle-orm';
 import { db } from '..';
 import { ChatMessage } from '../../types';
 import { messages } from '../schema/message.schema';
-import { updateThread } from './thread';
+import { updateThread } from './thread.operation';
 
 export const addMessage = async (
   threadId: string,

@@ -8,7 +8,10 @@ import { DirectoryLoader } from 'langchain/document_loaders/fs/directory';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { access } from 'node:fs/promises';
-import { addDirectory, getDirectory } from '../db/operations/directory';
+import {
+  addDirectory,
+  getDirectory
+} from '../db/operations/directory.operation';
 import { embeddings } from '../lib/AI';
 import { createVectorStorePath } from '../lib/utils';
 

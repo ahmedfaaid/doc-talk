@@ -1,5 +1,5 @@
 import { Context } from 'hono';
-import { updateUser as updtUser } from '../db/operations/user';
+import { updateUser as updtUser } from '../db/operations/user.operation';
 
 export const updateUser = async (c: Context) => {
   try {
