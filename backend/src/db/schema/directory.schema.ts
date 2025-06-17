@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
-import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import { z } from 'zod';
 
 export const directories = sqliteTable('directories', {
   id: text('id', { mode: 'text' }).primaryKey().default(randomUUID()).notNull(),
@@ -11,9 +11,16 @@ export const directories = sqliteTable('directories', {
   created_at: text('created_at').notNull().default(new Date().toISOString())
 });
 
-export const insertDirectorySchema = createInsertSchema(directories).omit({
-  id: true,
-  created_at: true
+export const insertDirectorySchema = z.object({
+  name: z.string(),
+  directory_path: z.string()
 });
 
-export const selectDirectorySchema = createSelectSchema(directories);
+export const selectDirectorySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  directory_path: z.string(),
+  vector_path: z.string(),
+  indexed: z.boolean(),
+  created_at: z.string()
+});
