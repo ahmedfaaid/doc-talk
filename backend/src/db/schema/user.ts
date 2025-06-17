@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
 import { relations } from 'drizzle-orm';
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { createInsertSchema } from 'drizzle-zod';
 
 export const users = sqliteTable('users', {
   id: text('id', { mode: 'text' }).primaryKey().default(randomUUID()).notNull(),
@@ -35,3 +36,11 @@ export const userRelations = relations(users, ({ one, many }) => ({
     references: [users.id]
   })
 }));
+
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  created_at: true,
+  updated_at: true
+});
+
+export const selectUserSchema = createInsertSchema(users);
