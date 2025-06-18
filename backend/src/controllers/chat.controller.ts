@@ -16,23 +16,36 @@ import { addMessage } from '../db/operations/message.operation';
 import { createThread, getThread } from '../db/operations/thread.operation';
 import { embeddings, llm } from '../lib/AI';
 import { DbChatMessageHistory } from '../lib/chat';
+import {
+  BAD_REQUEST,
+  INTERNAL_SERVER_ERROR,
+  NOT_FOUND
+} from '../lib/http-status-codes';
 import { contextualPrompt, systemPrompt } from '../lib/prompts';
 import { createVectorStorePath, getLastPathSegment } from '../lib/utils';
+import { ChatRoute } from '../routes/chat/chat.route';
+import { AppRouteHandler } from '../types';
 
 function getSessionHistory(sessionId: string): BaseChatMessageHistory {
   return new DbChatMessageHistory(sessionId);
 }
 
-export const chat = async (c: Context) => {
+export const chat: AppRouteHandler<ChatRoute> = async (c: Context) => {
   try {
     const { query, directoryPath, threadId, title } = await c.req.json();
 
     if (!query) {
-      return c.json({ message: 'Query is required', code: 400 }, 400);
+      return c.json(
+        { message: 'Query is required', code: BAD_REQUEST },
+        BAD_REQUEST
+      );
     }
 
     if (!directoryPath) {
-      return c.json({ message: 'Directory path is required', code: 400 }, 400);
+      return c.json(
+        { message: 'Directory path is required', code: BAD_REQUEST },
+        BAD_REQUEST
+      );
     }
 
     // Handle thread creation/retrieval
@@ -51,7 +64,10 @@ export const chat = async (c: Context) => {
     // Verify thread exists
     const thread = await getThread(currentThreadId);
     if (!thread) {
-      return c.json({ message: 'Thread not found', code: 404 }, 404);
+      return c.json(
+        { message: 'Thread not found', code: NOT_FOUND },
+        NOT_FOUND
+      );
     }
 
     // Check if directory is indexed
@@ -61,10 +77,10 @@ export const chat = async (c: Context) => {
       return c.json(
         {
           message: 'The selected directory has not been indexed',
-          code: 400,
+          code: BAD_REQUEST,
           directory: null
         },
-        400
+        BAD_REQUEST
       );
     }
 
@@ -179,6 +195,6 @@ export const chat = async (c: Context) => {
       }
     });
   } catch (error) {
-    return c.json({ error: (error as Error).message }, 500);
+    return c.json({ error: (error as Error).message }, INTERNAL_SERVER_ERROR);
   }
 };
