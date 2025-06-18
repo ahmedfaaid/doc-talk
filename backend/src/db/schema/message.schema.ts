@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { index, sqliteTable, text } from 'drizzle-orm/sqlite-core';
-import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import z from 'zod';
 import { threads } from './thread.schema';
 
 export const messages = sqliteTable(
@@ -29,8 +29,19 @@ export const messages = sqliteTable(
   ]
 );
 
-export const insertMessageSchema = createInsertSchema(messages).omit({
-  id: true
+export const insertMessageSchema = z.object({
+  thread_id: z.string().uuid(),
+  role: z.enum(['user', 'assistant', 'system']),
+  content: z.string(),
+  timestamp: z.string(),
+  metadata: z.string().nullable()
 });
 
-export const selectMessageSchema = createSelectSchema(messages);
+export const selectMessageSchema = z.object({
+  id: z.string().uuid(),
+  thread_id: z.string().uuid(),
+  role: z.enum(['user', 'assistant', 'system']),
+  content: z.string(),
+  timestamp: z.string(),
+  metadata: z.string().nullable()
+});
