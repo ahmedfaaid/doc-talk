@@ -1,4 +1,5 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
+import { csrf } from 'hono/csrf';
 import notFound from '../middlewares/not-found';
 import onError from '../middlewares/on-error';
 import pinoLogger from '../middlewares/pino-logger';
@@ -18,6 +19,8 @@ export default function createApp() {
   app.notFound(notFound);
   app.onError(onError);
   app.use(pinoLogger());
+
+  app.use('/api/*', csrf());
 
   app.get('/error', c => {
     c.status(422);
