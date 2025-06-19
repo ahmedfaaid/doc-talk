@@ -13,7 +13,7 @@ const routes = [user, directory, thread, chat, auth];
 openApiConfig(app);
 
 routes.forEach(route => {
-  app.route('/', route);
+  app.route('/api/', route);
 });
 
 export default app;
