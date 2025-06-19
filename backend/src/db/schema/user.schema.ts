@@ -67,3 +67,16 @@ export const updateUserSchema = z
     role: z.enum(['user', 'admin', 'superadmin']).optional()
   })
   .strict();
+
+export const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6)
+});
+
+export const authSchema = z.object({
+  token: z.string(),
+  user: z.object({
+    id: z.string().uuid(),
+    email: z.string().email()
+  })
+});
