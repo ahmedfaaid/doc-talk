@@ -2,8 +2,15 @@ import { password } from 'bun';
 import { Context } from 'hono';
 import { sign } from 'hono/jwt';
 import { createUser, getUser } from '../db/operations/user.operation';
+import {
+  INTERNAL_SERVER_ERROR,
+  OK,
+  UNAUTHORIZED
+} from '../lib/http-status-codes';
+import { LoginRoute } from '../routes/auth/auth.route';
+import { AppRouteHandler } from '../types';
 
-export const login = async (c: Context) => {
+export const login: AppRouteHandler<LoginRoute> = async (c: Context) => {
   try {
     const { email, password: plainPassword } = await c.req.json();
 
@@ -13,8 +20,8 @@ export const login = async (c: Context) => {
 
     if (!user || !(await password.verify(plainPassword, user.password))) {
       return c.json(
-        { message: 'Invalid username or password', code: 401 },
-        401
+        { message: 'Invalid username or password', code: UNAUTHORIZED },
+        UNAUTHORIZED
       );
     }
 
@@ -25,9 +32,9 @@ export const login = async (c: Context) => {
     };
     const token = await sign(payload, process.env.JWT_SECRET_KEY!);
 
-    return c.json({ token, user: { id: user.id, email: user.email } }, 200);
+    return c.json({ token, user: { id: user.id, email: user.email } }, OK);
   } catch (error) {
-    return c.json({ error: 'Failed to login' }, 500);
+    return c.json({ message: (error as Error).message }, INTERNAL_SERVER_ERROR);
   }
 };
 
