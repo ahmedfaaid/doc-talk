@@ -19,8 +19,6 @@ export const login: AppRouteHandler<LoginRoute> = async (c: Context) => {
 
     const user = await getUser(undefined, email);
 
-    console.log({ user });
-
     if (!user || !(await password.verify(plainPassword, user.password))) {
       return c.json(
         { message: 'Invalid username or password', code: UNAUTHORIZED },
