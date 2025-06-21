@@ -2,6 +2,7 @@ import { password } from 'bun';
 import { Context } from 'hono';
 import { sign } from 'hono/jwt';
 import { createUser, getUser } from '../db/operations/user.operation';
+import env from '../lib/env';
 import {
   CONFLICT,
   CREATED,
@@ -61,7 +62,7 @@ export const register: AppRouteHandler<RegisterRoute> = async (c: Context) => {
       email: user.email,
       exp: Math.floor(Date.now() / 1000) + 5 * 24 * 60 * 60 * 1000 // 5 days from current date
     };
-    const token = await sign(payload, process.env.JWT_SECRET_KEY!);
+    const token = await sign(payload, env.JWT_SECRET_KEY!);
 
     return c.json(
       { token, user: { id: registerUser.id, email: registerUser.email } },
