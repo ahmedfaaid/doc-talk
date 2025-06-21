@@ -3,11 +3,13 @@ import { Context } from 'hono';
 import { sign } from 'hono/jwt';
 import { createUser, getUser } from '../db/operations/user.operation';
 import {
+  CONFLICT,
+  CREATED,
   INTERNAL_SERVER_ERROR,
   OK,
   UNAUTHORIZED
 } from '../lib/http-status-codes';
-import { LoginRoute } from '../routes/auth/auth.route';
+import { LoginRoute, RegisterRoute } from '../routes/auth/auth.route';
 import { AppRouteHandler } from '../types';
 
 export const login: AppRouteHandler<LoginRoute> = async (c: Context) => {
@@ -38,7 +40,7 @@ export const login: AppRouteHandler<LoginRoute> = async (c: Context) => {
   }
 };
 
-export const register = async (c: Context) => {
+export const register: AppRouteHandler<RegisterRoute> = async (c: Context) => {
   try {
     const { user } = await c.req.json();
 
@@ -48,7 +50,10 @@ export const register = async (c: Context) => {
     });
 
     if (!registerUser) {
-      return c.json({ message: 'User already exists', code: 409 }, 409);
+      return c.json(
+        { message: 'User already exists', code: CONFLICT },
+        CONFLICT
+      );
     }
 
     const payload = {
@@ -60,9 +65,9 @@ export const register = async (c: Context) => {
 
     return c.json(
       { token, user: { id: registerUser.id, email: registerUser.email } },
-      201
+      CREATED
     );
   } catch (error) {
-    return c.json({ error: 'Failed to register' }, 500);
+    return c.json({ message: (error as Error).message }, INTERNAL_SERVER_ERROR);
   }
 };
