@@ -78,8 +78,8 @@ export const registerSchema = z.object({
   first_name: z.string(),
   last_name: z.string(),
   company: z.string().nullable(),
-  is_company: z.boolean(),
-  role: z.enum(['user', 'admin', 'superadmin']),
+  is_company: z.boolean().default(false),
+  role: z.enum(['user', 'admin', 'superadmin']).default('superadmin'),
   parent_id: z.string().uuid().nullable()
 });
 
