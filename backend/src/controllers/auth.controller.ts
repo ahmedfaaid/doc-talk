@@ -56,8 +56,8 @@ export const register: AppRouteHandler<RegisterRoute> = async (c: Context) => {
     }
 
     const payload = {
-      id: user.id,
-      email: user.email,
+      id: registerUser.id,
+      email: registerUser.email,
       exp: Math.floor(Date.now() / 1000) + 5 * 24 * 60 * 60 * 1000 // 5 days from current date
     };
     const token = await sign(payload, env.JWT_SECRET_KEY!);
