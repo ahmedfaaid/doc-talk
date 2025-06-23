@@ -2,9 +2,10 @@ import { createRoute, z } from '@hono/zod-openapi';
 import {
   authSchema,
   loginSchema,
-  registerSchema
+  registerSchema,
+  selectUserSchema
 } from '../../db/schema/user.schema';
-import { serverErrorSchema } from '../../lib/constants';
+import { notFoundSchema, serverErrorSchema } from '../../lib/constants';
 import * as HttpStatusCodes from '../../lib/http-status-codes';
 import { jsonContent, jsonContentRequired } from '../../lib/json-content';
 const tags = ['auth'];
@@ -60,5 +61,25 @@ export const register = createRoute({
   }
 });
 
+export const me = createRoute({
+  tags,
+  method: 'get',
+  path: 'auth/me',
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(selectUserSchema, 'The requested user'),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, 'User not found'),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      serverErrorSchema,
+      'Server Error'
+    )
+  },
+  security: [
+    {
+      Bearer: []
+    }
+  ]
+});
+
 export type LoginRoute = typeof login;
 export type RegisterRoute = typeof register;
+export type MeRoute = typeof me;
