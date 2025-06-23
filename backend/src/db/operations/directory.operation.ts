@@ -47,7 +47,10 @@ export const createDirectory = async (
 
 export const getDirectory = async (path: string): Promise<Directory | null> => {
   const directory = await db.query.directories.findFirst({
-    where: eq(directories.directory_path, path)
+    where: eq(directories.directory_path, path),
+    with: {
+      owner: true
+    }
   });
   return directory as Directory | null;
 };
