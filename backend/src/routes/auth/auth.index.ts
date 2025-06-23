@@ -4,6 +4,7 @@ import * as routes from './auth.route';
 
 const router = createRouter()
   .openapi(routes.login, authController.login)
-  .openapi(routes.register, authController.register);
+  .openapi(routes.register, authController.register)
+  .openapi(routes.me, authController.me);
 
 export default router;
