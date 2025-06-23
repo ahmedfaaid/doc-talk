@@ -7,6 +7,7 @@ export type Directory = {
   directory_path: string;
   vector_path: string;
   indexed: boolean;
+  owner_id: string;
   created_at: string;
 };
 
@@ -37,6 +38,7 @@ export type User = {
   is_company: boolean;
   role: 'user' | 'admin' | 'superadmin';
   parent_id: string | null;
+  parent?: User;
   created_at: string;
   updated_at: string;
 };
