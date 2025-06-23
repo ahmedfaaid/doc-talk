@@ -7,10 +7,11 @@ import {
   CONFLICT,
   CREATED,
   INTERNAL_SERVER_ERROR,
+  NOT_FOUND,
   OK,
   UNAUTHORIZED
 } from '../lib/http-status-codes';
-import { LoginRoute, RegisterRoute } from '../routes/auth/auth.route';
+import { LoginRoute, MeRoute, RegisterRoute } from '../routes/auth/auth.route';
 import { AppRouteHandler } from '../types';
 
 export const login: AppRouteHandler<LoginRoute> = async (c: Context) => {
@@ -66,6 +67,22 @@ export const register: AppRouteHandler<RegisterRoute> = async (c: Context) => {
       { token, user: { id: registerUser.id, email: registerUser.email } },
       CREATED
     );
+  } catch (error) {
+    return c.json({ message: (error as Error).message }, INTERNAL_SERVER_ERROR);
+  }
+};
+
+export const me: AppRouteHandler<MeRoute> = async (c: Context) => {
+  try {
+    const payload = c.get('user');
+
+    const user = await getUser(payload.id, undefined);
+
+    if (!user) {
+      return c.json({ message: 'User not found', code: NOT_FOUND }, NOT_FOUND);
+    }
+    const { password, ...rest } = user;
+    return c.json(rest, OK);
   } catch (error) {
     return c.json({ message: (error as Error).message }, INTERNAL_SERVER_ERROR);
   }
