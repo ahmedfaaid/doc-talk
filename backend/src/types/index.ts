@@ -58,3 +58,9 @@ export type AppRouteHandler<R extends RouteConfig> = RouteHandler<
   R,
   AppBindings
 >;
+
+export type JWTPayload = {
+  id: number;
+  email: string;
+  exp: number;
+};
