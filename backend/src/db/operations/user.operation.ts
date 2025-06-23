@@ -20,7 +20,10 @@ export const getUser = async (
   email?: string
 ): Promise<User | null> => {
   const user = await db.query.users.findFirst({
-    where: userId ? eq(users.id, userId) : eq(users.email, email!)
+    where: userId ? eq(users.id, userId) : eq(users.email, email!),
+    with: {
+      parent: true
+    }
   });
 
   return user as User | null;
