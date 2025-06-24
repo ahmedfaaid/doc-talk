@@ -26,6 +26,14 @@ export const indexDirectory = createRoute({
       }),
       'Directory indexed successfully'
     ),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      z.object({
+        message: z.string(),
+        code: z.number(),
+        directory: z.null()
+      }),
+      'Directory could not be indexed'
+    ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(insertDirectorySchema),
       'Validation error for directory data'
