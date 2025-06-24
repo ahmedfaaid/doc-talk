@@ -10,6 +10,7 @@ export const createDirectory = async (
     name: string;
     directory_path: string;
     vector_path?: string;
+    indexed: boolean;
   },
   userId: string
 ): Promise<Directory | null> => {
@@ -37,7 +38,7 @@ export const createDirectory = async (
       vector_path:
         directoryData.vector_path || `${directoryData.directory_path}/vectors`,
       owner_id: ownerId,
-      indexed: false
+      indexed: directoryData.indexed
     })
     .returning();
 
