@@ -9,9 +9,10 @@ import { TextLoader } from 'langchain/document_loaders/fs/text';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { access } from 'node:fs/promises';
 import {
-  addDirectory,
+  createDirectory,
   getDirectory
 } from '../db/operations/directory.operation';
+import { getUser } from '../db/operations/user.operation';
 import { embeddings } from '../lib/AI';
 import {
   BAD_REQUEST,
@@ -32,6 +33,9 @@ export const indexDirectory: AppRouteHandler<IndexDirectoryRoute> = async (
 ) => {
   try {
     const { directoryPath, name } = await c.req.json();
+    const payload = c.get('user');
+
+    const user = await getUser(payload.id, undefined);
 
     await access(directoryPath!);
 
@@ -67,11 +71,9 @@ export const indexDirectory: AppRouteHandler<IndexDirectoryRoute> = async (
     const vectorStore = await HNSWLib.fromDocuments(splitText, embeddings);
     await vectorStore.save(vector_path);
 
-    const directory = await addDirectory(
-      directoryPath,
-      name,
-      vector_path,
-      true
+    const directory = await createDirectory(
+      { directory_path: directoryPath, name, vector_path, indexed: true },
+      user?.id as string
     );
 
     return c.json(
