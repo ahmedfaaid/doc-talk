@@ -76,6 +76,17 @@ export const indexDirectory: AppRouteHandler<IndexDirectoryRoute> = async (
       user?.id as string
     );
 
+    if (!directory) {
+      return c.json(
+        {
+          message: 'The directory could not be indexed',
+          code: BAD_REQUEST,
+          directory: null
+        },
+        BAD_REQUEST
+      );
+    }
+
     return c.json(
       { message: 'Directory indexed successfully', code: CREATED, directory },
       CREATED
