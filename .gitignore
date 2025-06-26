@@ -30,3 +30,5 @@ vectorstore
 *.sqlite
 *.db
 migrations/
+
+uploads
