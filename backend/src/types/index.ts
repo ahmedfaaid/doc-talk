@@ -68,3 +68,30 @@ export type JWTPayload = {
   email: string;
   exp: number;
 };
+
+export type FileExtension =
+  | 'txt'
+  | 'md'
+  | 'pdf'
+  | 'doc'
+  | 'docx'
+  | 'json'
+  | 'csv'
+  | 'html'
+  | 'xml';
+
+export type File = {
+  id: string;
+  filename: string;
+  extension: FileExtension;
+  original_path: string;
+  upload_path: string;
+  size: string;
+  batch_id: string;
+  owner_id: string;
+  owner: User;
+  access_level: Role;
+  status: 'uploading' | 'completed' | 'failed';
+  created_at: string;
+  completed_at: string;
+};
