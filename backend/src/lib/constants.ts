@@ -20,3 +20,24 @@ export const ZOD_ERROR_MESSAGES = {
 export const ZOD_ERROR_CODES = {
   INVALID_UPDATES: 'invalid_updates'
 };
+
+export const fileExtensions: [string, ...string[]] = [
+  'txt',
+  'md',
+  'pdf',
+  'doc',
+  'docx',
+  'json',
+  'csv',
+  'html',
+  'xml'
+];
+
+export const UPLOAD_DIR = 'uploads';
+
+export const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+
+export const uploadProgress = new Map<
+  string,
+  { loaded: number; total: number; status: string }
+>();
