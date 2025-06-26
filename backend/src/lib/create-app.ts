@@ -1,10 +1,12 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { csrf } from 'hono/csrf';
+import { existsSync, mkdirSync } from 'node:fs';
 import jwtMiddleware from '../middlewares/jwt';
 import notFound from '../middlewares/not-found';
 import onError from '../middlewares/on-error';
 import pinoLogger from '../middlewares/pino-logger';
 import { AppBindings } from '../types';
+import { UPLOAD_DIR } from './constants';
 import defaultHook from './default-hook';
 
 export function createRouter() {
@@ -15,6 +17,10 @@ export function createRouter() {
 }
 
 export default function createApp() {
+  if (!existsSync(UPLOAD_DIR)) {
+    mkdirSync(UPLOAD_DIR, { recursive: true });
+  }
+
   const app = createRouter();
 
   app.notFound(notFound);
