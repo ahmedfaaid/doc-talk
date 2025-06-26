@@ -43,7 +43,6 @@ export const insertFileSchema = z.object({
   extension: z.string(),
   original_path: z.string(),
   size: z.string(),
-  upload_path: z.string(),
   batch_id: z.string(),
   owner_id: z.string(),
   access_level: z.enum(['user', 'admin', 'superadmin']),
