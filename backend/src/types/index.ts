@@ -19,10 +19,12 @@ export type ChatThread = {
   metadata: string | null;
 };
 
+export type Role = 'user' | 'admin' | 'superadmin';
+
 export type ChatMessage = {
   id: string;
   thread_id: string;
-  role: 'user' | 'assistant' | 'system';
+  role: Role;
   content: string;
   timestamp: string;
   metadata: string | null;
@@ -36,7 +38,7 @@ export type User = {
   last_name: string;
   company: string | null;
   is_company: boolean;
-  role: 'user' | 'admin' | 'superadmin';
+  role: Role;
   parent_id: string | null;
   parent?: User;
   created_at: string;
