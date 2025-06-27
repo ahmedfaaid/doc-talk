@@ -8,6 +8,10 @@ export const createVectorStorePath = (name: string) => {
   return `vectorstore/${name}`;
 };
 
-export const createUploadFilePath = (name: string, userId: string) => {
-  return `${UPLOAD_DIR}/${userId}-${name}`;
+export const createUploadFilePath = (
+  name: string,
+  extension: string,
+  userId: string
+) => {
+  return `${UPLOAD_DIR}/${userId}-${name}.${extension}`;
 };
