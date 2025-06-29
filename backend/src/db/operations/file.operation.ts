@@ -7,7 +7,13 @@ import { users } from '../schema/user.schema';
 export const uploadFile = async (
   file: Omit<
     File,
-    'owner_id' | 'owner' | 'status' | 'created_at' | 'completed_at'
+    | 'owner_id'
+    | 'owner'
+    | 'upload_status'
+    | 'vector_status'
+    | 'created_at'
+    | 'upload_completed_at'
+    | 'vector_completed_at'
   >,
   userId: string
 ): Promise<File | null> => {
@@ -29,7 +35,7 @@ export const uploadFile = async (
 
   const [newFile] = await db
     .insert(files)
-    .values({ ...file, owner_id: ownerId, status: 'uploading' })
+    .values({ ...file, owner_id: ownerId, upload_status: 'uploading' })
     .returning();
 
   return newFile as File;
