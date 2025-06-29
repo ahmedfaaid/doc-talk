@@ -91,7 +91,23 @@ export type File = {
   owner_id: string;
   owner?: User;
   access_level: Role;
-  status: 'uploading' | 'completed' | 'failed';
+  upload_status: 'uploading' | 'completed' | 'failed';
+  vector_status: 'processing' | 'completed' | 'failed';
   created_at: string;
-  completed_at: string;
+  upload_completed_at: string;
+  vector_completed_at: string;
+};
+
+export type FileUploadProgress = {
+  loaded: number;
+  total: number;
+  status: string;
+};
+
+export type ChunkAndStoreProgress = {
+  loaded: number;
+  total: number;
+  status: 'processing' | 'completed' | 'failed';
+  stage: 'loading' | 'chunking' | 'embedding' | 'storing';
+  message?: string;
 };
