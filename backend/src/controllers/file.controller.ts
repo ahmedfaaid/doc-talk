@@ -29,12 +29,12 @@ export const uploadFile: AppRouteHandler<UploadFileRoute> = async (
     const file = body['file'] as File;
     const filename = body['filename'] as string;
     const extension = body['extension'] as FileExtension;
-    const original_path = body['original_path'] as string;
+    const originalPath = body['originalPath'] as string;
     const size = body['size'] as string;
-    const batch_id = body['batch_id'] as string;
-    const access_level = body['access_level'] as UserRole;
+    const batchId = body['batchId'] as string;
+    const accessLevel = body['accessLevel'] as UserRole;
 
-    const upload_path = createUploadFilePath(filename, extension, user?.id!);
+    const uploadPath = createUploadFilePath(filename, extension, user?.id!);
 
     if (!file || !(file instanceof File)) {
       return c.json(
@@ -73,11 +73,11 @@ export const uploadFile: AppRouteHandler<UploadFileRoute> = async (
         id: uploadId,
         filename,
         extension,
-        original_path,
-        upload_path,
+        originalPath,
+        uploadPath,
         size,
-        batch_id,
-        access_level
+        batchId,
+        accessLevel
       },
       user?.id!
     );
@@ -91,7 +91,7 @@ export const uploadFile: AppRouteHandler<UploadFileRoute> = async (
 
     uploadFileWithProgress(
       file,
-      upload_path,
+      uploadPath,
       uploadId,
       user?.id,
       filename,
@@ -107,10 +107,10 @@ export const uploadFile: AppRouteHandler<UploadFileRoute> = async (
       code: CREATED,
       file: {
         ...newFile,
-        progress_url: `/files/progress/${uploadId}`,
+        progressUrl: `/files/progress/${uploadId}`,
         ...(supportsVectorProcessing && {
-          vector_progress_url: `/files/vector-progress/${uploadId}`,
-          supports_vector_processing: true
+          vectorProgressUrl: `/files/vector-progress/${uploadId}`,
+          supportsVectorProcessing: true
         })
       }
     });

@@ -34,7 +34,7 @@ export const getAllUsers = async (
   offset: number = 0
 ): Promise<User[]> => {
   const allUsers = await db.query.users.findMany({
-    orderBy: [asc(users.created_at)],
+    orderBy: [asc(users.createdAt)],
     limit,
     offset
   });
@@ -45,14 +45,14 @@ export const getAllUsers = async (
 export const updateUser = async (
   userId: string,
   user: Partial<
-    Pick<User, 'email' | 'first_name' | 'last_name' | 'company' | 'role'>
+    Pick<User, 'email' | 'firstName' | 'lastName' | 'company' | 'role'>
   >
 ): Promise<User> => {
   const [update] = await db
     .update(users)
     .set({
       ...user,
-      updated_at: new Date().toISOString()
+      updatedAt: new Date().toISOString()
     })
     .where(eq(users.id, userId))
     .returning();

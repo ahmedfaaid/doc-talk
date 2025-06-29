@@ -8,8 +8,8 @@ import { getUser } from './user.operation';
 export const createDirectory = async (
   directoryData: {
     name: string;
-    directory_path: string;
-    vector_path?: string;
+    directoryPath: string;
+    vectorPath?: string;
     indexed: boolean;
   },
   userId: string
@@ -24,8 +24,8 @@ export const createDirectory = async (
 
   let ownerId: string;
 
-  if (user.parent_id) {
-    ownerId = user.parent_id;
+  if (user.parentId) {
+    ownerId = user.parentId;
   } else {
     ownerId = user.id;
   }
@@ -34,10 +34,10 @@ export const createDirectory = async (
     .insert(directories)
     .values({
       name: directoryData.name,
-      directory_path: directoryData.directory_path,
-      vector_path:
-        directoryData.vector_path || `${directoryData.directory_path}/vectors`,
-      owner_id: ownerId,
+      directoryPath: directoryData.directoryPath,
+      vectorPath:
+        directoryData.vectorPath || `${directoryData.directoryPath}/vectors`,
+      ownerId: ownerId,
       indexed: directoryData.indexed
     })
     .returning();
@@ -47,7 +47,7 @@ export const createDirectory = async (
 
 export const getDirectory = async (path: string): Promise<Directory | null> => {
   const directory = await db.query.directories.findFirst({
-    where: eq(directories.directory_path, path),
+    where: eq(directories.directoryPath, path),
     with: {
       owner: true
     }
@@ -66,20 +66,20 @@ export const getUserDirectories = async (
 
   let accessibleUserIds: string[] = [];
 
-  if (user.parent_id && user.parent) {
-    const parentId = user.parent_id;
+  if (user.parentId && user.parent) {
+    const parentId = user.parentId;
 
     switch (user.role) {
       case 'superadmin':
         const parentSubUsers = await db.query.users.findMany({
-          where: eq(users.parent_id, parentId),
+          where: eq(users.parentId, parentId),
           columns: { id: true }
         });
         accessibleUserIds = [parentId, ...parentSubUsers.map(u => u.id)];
         break;
       case 'admin':
         const ownSubUsers = await db.query.users.findMany({
-          where: eq(users.parent_id, user.id),
+          where: eq(users.parentId, user.id),
           columns: { id: true }
         });
         accessibleUserIds = [parentId, user.id, ...ownSubUsers.map(u => u.id)];
@@ -93,14 +93,14 @@ export const getUserDirectories = async (
     switch (user.role) {
       case 'superadmin':
         const allSubUsers = await db.query.users.findMany({
-          where: eq(users.parent_id, user.id),
+          where: eq(users.parentId, user.id),
           columns: { id: true }
         });
         accessibleUserIds = [user.id, ...allSubUsers.map(u => u.id)];
         break;
       case 'admin':
         const subUsers = await db.query.users.findMany({
-          where: eq(users.parent_id, user.id),
+          where: eq(users.parentId, user.id),
           columns: { id: true }
         });
         accessibleUserIds = [user.id, ...subUsers.map(u => u.id)];
@@ -113,14 +113,14 @@ export const getUserDirectories = async (
   }
 
   const userDirectories = await db.query.directories.findMany({
-    where: inArray(directories.owner_id, accessibleUserIds),
+    where: inArray(directories.ownerId, accessibleUserIds),
     with: {
       owner: {
         columns: {
           id: true,
           email: true,
-          first_name: true,
-          last_name: true
+          firstName: true,
+          lastName: true
         }
       }
     }
@@ -147,30 +147,30 @@ export const getDirectoryByPath = async (
 
   let hasAccess = false;
 
-  if (user.parent_id) {
-    const parentId = user.parent_id;
+  if (user.parentId) {
+    const parentId = user.parentId;
     switch (user.role) {
       case 'superadmin':
-        if (directory.owner_id === parentId) {
+        if (directory.ownerId === parentId) {
           hasAccess = true;
         } else {
           const isParentSubUser = await db.query.users.findFirst({
             where: and(
-              eq(users.id, directory.owner_id),
-              eq(users.parent_id, parentId)
+              eq(users.id, directory.ownerId),
+              eq(users.parentId, parentId)
             )
           });
           hasAccess = !!isParentSubUser;
         }
         break;
       case 'admin':
-        if (directory.owner_id === parentId || directory.owner_id === userId) {
+        if (directory.ownerId === parentId || directory.ownerId === userId) {
           hasAccess = true;
         } else {
           const isOwnSubUser = await db.query.users.findFirst({
             where: and(
-              eq(users.id, directory.owner_id),
-              eq(users.parent_id, user.id)
+              eq(users.id, directory.ownerId),
+              eq(users.parentId, user.id)
             )
           });
           hasAccess = !!isOwnSubUser;
@@ -178,7 +178,7 @@ export const getDirectoryByPath = async (
         break;
       case 'user':
       default:
-        hasAccess = directory.owner_id === parentId;
+        hasAccess = directory.ownerId === parentId;
         break;
     }
   } else {
@@ -186,13 +186,13 @@ export const getDirectoryByPath = async (
       case 'superadmin':
       case 'admin':
         // Can access own directories and sub-users' directories
-        if (directory.owner_id === user.id) {
+        if (directory.ownerId === user.id) {
           hasAccess = true;
         } else {
           const isSubUser = await db.query.users.findFirst({
             where: and(
-              eq(users.id, directory.owner_id),
-              eq(users.parent_id, user.id)
+              eq(users.id, directory.ownerId),
+              eq(users.parentId, user.id)
             )
           });
           hasAccess = !!isSubUser;
@@ -201,7 +201,7 @@ export const getDirectoryByPath = async (
 
       case 'user':
       default:
-        hasAccess = directory.owner_id === user.id;
+        hasAccess = directory.ownerId === user.id;
         break;
     }
   }
@@ -234,18 +234,18 @@ export const getDirectoryById = async (
 
   let hasAccess = false;
 
-  if (user.parent_id) {
-    const parentId = user.parent_id;
+  if (user.parentId) {
+    const parentId = user.parentId;
 
     switch (user.role) {
       case 'superadmin':
-        if (directory.owner_id === parentId) {
+        if (directory.ownerId === parentId) {
           hasAccess = true;
         } else {
           const isParentSubUser = await db.query.users.findFirst({
             where: and(
-              eq(users.id, directory.owner_id),
-              eq(users.parent_id, parentId)
+              eq(users.id, directory.ownerId),
+              eq(users.parentId, parentId)
             )
           });
           hasAccess = !!isParentSubUser;
@@ -253,13 +253,13 @@ export const getDirectoryById = async (
         break;
 
       case 'admin':
-        if (directory.owner_id === parentId || directory.owner_id === user.id) {
+        if (directory.ownerId === parentId || directory.ownerId === user.id) {
           hasAccess = true;
         } else {
           const isOwnSubUser = await db.query.users.findFirst({
             where: and(
-              eq(users.id, directory.owner_id),
-              eq(users.parent_id, user.id)
+              eq(users.id, directory.ownerId),
+              eq(users.parentId, user.id)
             )
           });
           hasAccess = !!isOwnSubUser;
@@ -268,20 +268,20 @@ export const getDirectoryById = async (
 
       case 'user':
       default:
-        hasAccess = directory.owner_id === parentId;
+        hasAccess = directory.ownerId === parentId;
         break;
     }
   } else {
     switch (user.role) {
       case 'superadmin':
       case 'admin':
-        if (directory.owner_id === user.id) {
+        if (directory.ownerId === user.id) {
           hasAccess = true;
         } else {
           const isSubUser = await db.query.users.findFirst({
             where: and(
-              eq(users.id, directory.owner_id),
-              eq(users.parent_id, user.id)
+              eq(users.id, directory.ownerId),
+              eq(users.parentId, user.id)
             )
           });
           hasAccess = !!isSubUser;
@@ -290,7 +290,7 @@ export const getDirectoryById = async (
 
       case 'user':
       default:
-        hasAccess = directory.owner_id === user.id;
+        hasAccess = directory.ownerId === user.id;
         break;
     }
   }

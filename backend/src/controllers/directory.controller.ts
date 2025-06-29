@@ -39,7 +39,7 @@ export const indexDirectory: AppRouteHandler<IndexDirectoryRoute> = async (
 
     await access(directoryPath!);
 
-    const vector_path = createVectorStorePath(name);
+    const vectorPath = createVectorStorePath(name);
 
     const loader = new DirectoryLoader(directoryPath!, {
       '.txt': path => new TextLoader(path),
@@ -69,10 +69,10 @@ export const indexDirectory: AppRouteHandler<IndexDirectoryRoute> = async (
     const splitText = await textSplitter.splitDocuments(docs);
 
     const vectorStore = await HNSWLib.fromDocuments(splitText, embeddings);
-    await vectorStore.save(vector_path);
+    await vectorStore.save(vectorPath);
 
     const directory = await createDirectory(
-      { directory_path: directoryPath, name, vector_path, indexed: true },
+      { directoryPath, name, vectorPath, indexed: true },
       user?.id as string
     );
 

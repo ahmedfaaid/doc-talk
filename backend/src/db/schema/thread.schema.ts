@@ -11,15 +11,15 @@ export const threads = sqliteTable(
       .notNull(),
     title: text('title', { mode: 'text' }).notNull(),
     metadata: text('metadata', { mode: 'text' }).default('{}'),
-    created_at: text('created_at', { mode: 'text' })
+    createdAt: text('created_at', { mode: 'text' })
       .notNull()
       .default(new Date().toISOString()),
-    updated_at: text('updated_at', { mode: 'text' })
+    updatedAt: text('updated_at', { mode: 'text' })
       .notNull()
       .default(new Date().toISOString())
       .$onUpdate(() => new Date().toISOString())
   },
-  table => [index('idx_threads_updated_at').on(table.updated_at)]
+  table => [index('idx_threads_updated_at').on(table.updatedAt)]
 );
 
 export const insertThreadSchema = z.object({
@@ -31,6 +31,6 @@ export const selectThreadSchema = z.object({
   id: z.string(),
   title: z.string(),
   metadata: z.string().nullable(),
-  created_at: z.string(),
-  updated_at: z.string()
+  createdAt: z.string(),
+  updatedAt: z.string()
 });

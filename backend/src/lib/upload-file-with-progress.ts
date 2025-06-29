@@ -6,9 +6,9 @@ import { fileExtensions, uploadProgress } from './constants';
 
 async function uploadFileWithProgress(
   file: File,
-  upload_path: string,
-  upload_id: string,
-  user_id?: string,
+  uploadPath: string,
+  uploadId: string,
+  userId?: string,
   filename?: string,
   extension?: FileExtension
 ) {
@@ -23,10 +23,10 @@ async function uploadFileWithProgress(
       const chunk = uint8Array.slice(i, i + chunkSize);
       chunks.push(chunk);
 
-      const progress = uploadProgress.get(upload_id);
+      const progress = uploadProgress.get(uploadId);
       if (progress) {
         progress.loaded = Math.min(i + chunkSize, uint8Array.length);
-        uploadProgress.set(upload_id, progress);
+        uploadProgress.set(uploadId, progress);
       }
 
       await new Promise(resolve => setTimeout(resolve, 100));
@@ -41,32 +41,32 @@ async function uploadFileWithProgress(
       offset += chunk.length;
     }
 
-    await writeFile(upload_path, combinedArray);
+    await writeFile(uploadPath, combinedArray);
 
-    await updateUploadProgress(upload_id, 'completed');
+    await updateUploadProgress(uploadId, 'completed');
 
-    const progress = uploadProgress.get(upload_id);
+    const progress = uploadProgress.get(uploadId);
     if (progress) {
       progress.loaded = progress.total;
       progress.status = 'completed';
-      uploadProgress.set(upload_id, progress);
+      uploadProgress.set(uploadId, progress);
     }
 
     if (
       extension &&
-      user_id &&
+      userId &&
       filename &&
       fileExtensions.includes(extension.toLowerCase() as any)
     ) {
-      chunkAndStore(upload_path, filename, extension, upload_id, user_id);
+      chunkAndStore(uploadPath, filename, extension, uploadId, userId);
     }
   } catch (error) {
-    await updateUploadProgress(upload_id, 'failed');
+    await updateUploadProgress(uploadId, 'failed');
 
-    const progress = uploadProgress.get(upload_id);
+    const progress = uploadProgress.get(uploadId);
     if (progress) {
       progress.status = 'failed';
-      uploadProgress.set(upload_id, progress);
+      uploadProgress.set(uploadId, progress);
     }
   }
 }

@@ -11,8 +11,8 @@ export const createThread = async (
   const thread: ChatThread = {
     id: randomUUID(),
     title,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
     metadata: metadata ? JSON.stringify(metadata) : null
   };
 
@@ -36,7 +36,7 @@ export const getAllThreads = async (
   offset: number = 0
 ): Promise<ChatThread[]> => {
   const allThreads = await db.query.threads.findMany({
-    orderBy: [desc(threads.updated_at)],
+    orderBy: [desc(threads.updatedAt)],
     limit,
     offset
   });
@@ -58,7 +58,7 @@ export const updateThread = async (
             ? updates.metadata
             : JSON.stringify(updates.metadata)
       }),
-      updated_at: new Date().toISOString()
+      updatedAt: new Date().toISOString()
     })
     .where(eq(threads.id, threadId))
     .returning();

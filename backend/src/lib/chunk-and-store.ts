@@ -10,16 +10,16 @@ import {
 } from './utils';
 
 export async function chunkAndStore(
-  file_path: string,
+  filePath: string,
   filename: string,
   extension: FileExtension,
-  upload_id: string,
-  user_id: string
+  uploadId: string,
+  userId: string
 ) {
   try {
     // Initialize progress
     updateChunkAndStoreProgress(
-      upload_id,
+      uploadId,
       0,
       100,
       'loading',
@@ -28,10 +28,10 @@ export async function chunkAndStore(
     );
 
     // Load documents
-    const loader = docLoader(file_path, extension);
+    const loader = docLoader(filePath, extension);
     const doc = await loader.load();
     updateChunkAndStoreProgress(
-      upload_id,
+      uploadId,
       20,
       100,
       'loading',
@@ -41,7 +41,7 @@ export async function chunkAndStore(
 
     // Split documents into chunks
     updateChunkAndStoreProgress(
-      upload_id,
+      uploadId,
       25,
       100,
       'chunking',
@@ -50,7 +50,7 @@ export async function chunkAndStore(
     );
     const splitText = await textSplitter.splitDocuments(doc);
     updateChunkAndStoreProgress(
-      upload_id,
+      uploadId,
       40,
       100,
       'chunking',
@@ -63,9 +63,9 @@ export async function chunkAndStore(
       ...chunk,
       metadata: {
         ...chunk.metadata,
-        user_id,
+        userId,
         filename,
-        upload_id,
+        uploadId,
         chunk_index: index,
         total_chunks: splitText.length,
         processed_at: new Date().toISOString()
@@ -74,14 +74,14 @@ export async function chunkAndStore(
 
     // Create vector store
     updateChunkAndStoreProgress(
-      upload_id,
+      uploadId,
       50,
       100,
       'embedding',
       'processing',
       'Creating embeddings'
     );
-    const vector_path = createVectorStorePath(user_id, upload_id);
+    const vector_path = createVectorStorePath(userId, uploadId);
 
     // Create embeddings in batches to track progress
     const batchSize = 10;
@@ -97,7 +97,7 @@ export async function chunkAndStore(
       const batch = batches[i];
       const progressPercent = 50 + Math.floor((i / batches.length) * 40);
       updateChunkAndStoreProgress(
-        upload_id,
+        uploadId,
         progressPercent,
         100,
         'embedding',
@@ -120,7 +120,7 @@ export async function chunkAndStore(
 
     // Save vector store
     updateChunkAndStoreProgress(
-      upload_id,
+      uploadId,
       90,
       100,
       'storing',
@@ -130,11 +130,11 @@ export async function chunkAndStore(
     await vectorStore!.save(vector_path);
 
     // Update database
-    await updateVectorProgress(upload_id, 'completed', vector_path);
+    await updateVectorProgress(uploadId, 'completed', vector_path);
 
     // Final progress update
     updateChunkAndStoreProgress(
-      upload_id,
+      uploadId,
       100,
       100,
       'storing',
@@ -142,10 +142,10 @@ export async function chunkAndStore(
       `Successfully processed ${enrichedChunks.length} chunks from ${filename}`
     );
   } catch (error) {
-    await updateVectorProgress(upload_id, 'failed');
+    await updateVectorProgress(uploadId, 'failed');
 
     updateChunkAndStoreProgress(
-      upload_id,
+      uploadId,
       0,
       100,
       'loading',
