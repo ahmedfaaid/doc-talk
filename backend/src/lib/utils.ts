@@ -21,7 +21,7 @@ export const createUploadFilePath = (
   extension: string,
   userId: string
 ) => {
-  return `${UPLOAD_DIR}/${userId}-${name}.${extension}`;
+  return join(UPLOAD_DIR, userId, '-', name, '.', extension);
 };
 
 export const docLoader = (filePath: string, extension: FileExtension) => {
