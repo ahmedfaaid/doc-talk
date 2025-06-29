@@ -4,6 +4,7 @@ import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { createInsertSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { directories } from './directory.schema';
+import { files } from './file.schema';
 
 export const users = sqliteTable('users', {
   id: text('id', { mode: 'text' }).primaryKey().default(randomUUID()).notNull(),
@@ -37,7 +38,8 @@ export const userRelations = relations(users, ({ one, many }) => ({
     fields: [users.parent_id],
     references: [users.id]
   }),
-  directories: many(directories)
+  directories: many(directories),
+  files: many(files)
 }));
 
 export const insertUserSchema = createInsertSchema(users).omit({
