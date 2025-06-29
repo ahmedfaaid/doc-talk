@@ -49,3 +49,5 @@ export const textSplitter = new RecursiveCharacterTextSplitter({
   chunkSize: 1000,
   chunkOverlap: 200
 });
+
+export const roleHeirarchy = ['user', 'admin', 'superadmin'] as const;
