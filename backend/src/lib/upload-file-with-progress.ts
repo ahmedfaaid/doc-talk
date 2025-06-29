@@ -1,11 +1,16 @@
 import { writeFile } from 'node:fs/promises';
 import { updateUploadProgress } from '../db/operations/file.operation';
-import { uploadProgress } from './constants';
+import { FileExtension } from '../types';
+import { chunkAndStore } from './chunk-and-store';
+import { fileExtensions, uploadProgress } from './constants';
 
 async function uploadFileWithProgress(
   file: File,
   upload_path: string,
-  upload_id: string
+  upload_id: string,
+  user_id?: string,
+  filename?: string,
+  extension?: FileExtension
 ) {
   try {
     const buffer = await file.arrayBuffer();
@@ -45,6 +50,15 @@ async function uploadFileWithProgress(
       progress.loaded = progress.total;
       progress.status = 'completed';
       uploadProgress.set(upload_id, progress);
+    }
+
+    if (
+      extension &&
+      user_id &&
+      filename &&
+      fileExtensions.includes(extension.toLowerCase() as any)
+    ) {
+      chunkAndStore(upload_path, filename, extension, upload_id, user_id);
     }
   } catch (error) {
     await updateUploadProgress(upload_id, 'failed');
