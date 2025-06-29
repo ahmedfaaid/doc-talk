@@ -15,7 +15,7 @@ import {
 import uploadFileWithProgress from '../lib/upload-file-with-progress';
 import { createUploadFilePath } from '../lib/utils';
 import { UploadFileRoute } from '../routes/file/file.route';
-import { AppRouteHandler, FileExtension, Role } from '../types';
+import { AppRouteHandler, FileExtension, UserRole } from '../types';
 
 export const uploadFile: AppRouteHandler<UploadFileRoute> = async (
   c: Context
@@ -32,7 +32,7 @@ export const uploadFile: AppRouteHandler<UploadFileRoute> = async (
     const original_path = body['original_path'] as string;
     const size = body['size'] as string;
     const batch_id = body['batch_id'] as string;
-    const access_level = body['access_level'] as Role;
+    const access_level = body['access_level'] as UserRole;
 
     const upload_path = createUploadFilePath(filename, extension, user?.id!);
 
