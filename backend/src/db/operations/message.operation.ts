@@ -1,13 +1,13 @@
 import { randomUUID } from 'crypto';
 import { and, desc, eq, like } from 'drizzle-orm';
 import { db } from '..';
-import { ChatMessage } from '../../types';
+import { AiRole, ChatMessage } from '../../types';
 import { messages } from '../schema/message.schema';
 import { updateThread } from './thread.operation';
 
 export const addMessage = async (
   threadId: string,
-  role: 'user' | 'assistant' | 'system',
+  role: AiRole,
   content: string,
   metadata?: any
 ): Promise<ChatMessage> => {
