@@ -19,12 +19,13 @@ export type ChatThread = {
   metadata: string | null;
 };
 
-export type Role = 'user' | 'admin' | 'superadmin';
+export type UserRole = 'user' | 'admin' | 'superadmin';
+export type AiRole = 'user' | 'assistant' | 'system';
 
 export type ChatMessage = {
   id: string;
   thread_id: string;
-  role: Role;
+  role: AiRole;
   content: string;
   timestamp: string;
   metadata: string | null;
@@ -38,7 +39,7 @@ export type User = {
   last_name: string;
   company: string | null;
   is_company: boolean;
-  role: Role;
+  role: UserRole;
   parent_id: string | null;
   parent?: User;
   created_at: string;
@@ -90,7 +91,7 @@ export type File = {
   batch_id: string;
   owner_id: string;
   owner?: User;
-  access_level: Role;
+  access_level: UserRole;
   upload_status: 'uploading' | 'completed' | 'failed';
   vector_status: 'processing' | 'completed' | 'failed';
   created_at: string;
