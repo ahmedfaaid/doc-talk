@@ -89,7 +89,7 @@ export type File = {
   size: string;
   batch_id: string;
   owner_id: string;
-  owner: User;
+  owner?: User;
   access_level: Role;
   status: 'uploading' | 'completed' | 'failed';
   created_at: string;
