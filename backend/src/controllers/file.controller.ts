@@ -2,7 +2,11 @@ import { randomUUID } from 'crypto';
 import { Context } from 'hono';
 import { uploadFile as uf } from '../db/operations/file.operation';
 import { getUser } from '../db/operations/user.operation';
-import { MAX_FILE_SIZE, uploadProgress } from '../lib/constants';
+import {
+  fileExtensions,
+  MAX_FILE_SIZE,
+  uploadProgress
+} from '../lib/constants';
 import {
   BAD_REQUEST,
   CREATED,
@@ -85,14 +89,29 @@ export const uploadFile: AppRouteHandler<UploadFileRoute> = async (
       );
     }
 
-    uploadFileWithProgress(file, upload_path, uploadId);
+    uploadFileWithProgress(
+      file,
+      upload_path,
+      uploadId,
+      user?.id,
+      filename,
+      extension
+    );
+
+    const supportsVectorProcessing = fileExtensions.includes(
+      extension.toLowerCase() as any
+    );
 
     return c.json({
       message: 'File upload started successfully',
       code: CREATED,
       file: {
         ...newFile,
-        progress_url: `/files/progress/${uploadId}`
+        progress_url: `/files/progress/${uploadId}`,
+        ...(supportsVectorProcessing && {
+          vector_progress_url: `/files/vector-progress/${uploadId}`,
+          supports_vector_processing: true
+        })
       }
     });
   } catch (error) {
