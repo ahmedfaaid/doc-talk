@@ -10,7 +10,7 @@ export const messages = sqliteTable(
       .primaryKey()
       .default(randomUUID())
       .notNull(),
-    thread_id: text('thread_id', { mode: 'text' })
+    threadId: text('thread_id', { mode: 'text' })
       .notNull()
       .references(() => threads.id, { onDelete: 'cascade' }),
     role: text('role', {
@@ -24,13 +24,13 @@ export const messages = sqliteTable(
     metadata: text('metadata', { mode: 'text' }).default('{}')
   },
   table => [
-    index('idx_messages_thread_id').on(table.thread_id),
+    index('idx_messages_thread_id').on(table.threadId),
     index('idx_messages_timestamp').on(table.timestamp)
   ]
 );
 
 export const insertMessageSchema = z.object({
-  thread_id: z.string().uuid(),
+  threadId: z.string().uuid(),
   role: z.enum(['user', 'assistant', 'system']),
   content: z.string(),
   timestamp: z.string(),
@@ -39,7 +39,7 @@ export const insertMessageSchema = z.object({
 
 export const selectMessageSchema = z.object({
   id: z.string().uuid(),
-  thread_id: z.string().uuid(),
+  threadId: z.string().uuid(),
   role: z.enum(['user', 'assistant', 'system']),
   content: z.string(),
   timestamp: z.string(),

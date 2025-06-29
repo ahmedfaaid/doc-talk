@@ -7,13 +7,13 @@ import { users } from '../schema/user.schema';
 export const uploadFile = async (
   file: Omit<
     File,
-    | 'owner_id'
+    | 'ownerId'
     | 'owner'
-    | 'upload_status'
-    | 'vector_status'
-    | 'created_at'
-    | 'upload_completed_at'
-    | 'vector_completed_at'
+    | 'uploadStatus'
+    | 'vectorStatus'
+    | 'createdAt'
+    | 'uploadCompletedAt'
+    | 'vectorCompletedAt'
   >,
   userId: string
 ): Promise<File | null> => {
@@ -27,50 +27,49 @@ export const uploadFile = async (
 
   let ownerId: string;
 
-  if (user.parent_id) {
-    ownerId = user.parent_id;
+  if (user.parentId) {
+    ownerId = user.parentId;
   } else {
     ownerId = user.id;
   }
 
   const [newFile] = await db
     .insert(files)
-    .values({ ...file, owner_id: ownerId, upload_status: 'uploading' })
+    .values({ ...file, ownerId, uploadStatus: 'uploading' })
     .returning();
 
   return newFile as File;
 };
 
 export const updateUploadProgress = async (
-  upload_id: string,
+  uploadId: string,
   status: 'uploading' | 'completed' | 'failed'
 ): Promise<File> => {
   const [updatedFile] = await db
     .update(files)
     .set({
-      upload_status: status,
-      upload_completed_at:
-        status === 'completed' ? new Date().toISOString() : ''
+      uploadStatus: status,
+      uploadCompletedAt: status === 'completed' ? new Date().toISOString() : ''
     })
-    .where(eq(files.id, upload_id))
+    .where(eq(files.id, uploadId))
     .returning();
 
   return updatedFile as File;
 };
 
 export const updateVectorProgress = async (
-  upload_id: string,
+  uploadId: string,
   status: 'processing' | 'completed' | 'failed',
   vectorStorePath?: string
 ): Promise<File> => {
   const [updatedFile] = await db
     .update(files)
     .set({
-      vector_status: status,
-      vector_completed_at: new Date().toISOString(),
-      vector_store_path: vectorStorePath || ''
+      vectorStatus: status,
+      vectorCompletedAt: new Date().toISOString(),
+      vectorStorePath: vectorStorePath || ''
     })
-    .where(eq(files.id, upload_id))
+    .where(eq(files.id, uploadId))
     .returning();
 
   return updatedFile as File;

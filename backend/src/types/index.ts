@@ -4,18 +4,18 @@ import { PinoLogger } from 'hono-pino';
 export type Directory = {
   id: string;
   name: string;
-  directory_path: string;
-  vector_path: string;
+  directoryPath: string;
+  vectorPath: string;
   indexed: boolean;
-  owner_id: string;
-  created_at: string;
+  ownerId: string;
+  createdAt: string;
 };
 
 export type ChatThread = {
   id: string;
   title: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
   metadata: string | null;
 };
 
@@ -24,7 +24,7 @@ export type AiRole = 'user' | 'assistant' | 'system';
 
 export type ChatMessage = {
   id: string;
-  thread_id: string;
+  threadId: string;
   role: AiRole;
   content: string;
   timestamp: string;
@@ -35,15 +35,15 @@ export type User = {
   id: string;
   email: string;
   password: string;
-  first_name: string;
-  last_name: string;
+  firstName: string;
+  lastName: string;
   company: string | null;
-  is_company: boolean;
+  isCompany: boolean;
   role: UserRole;
-  parent_id: string | null;
+  parentId: string | null;
   parent?: User;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type ZodSchema =
@@ -85,18 +85,18 @@ export type File = {
   id: string;
   filename: string;
   extension: FileExtension;
-  original_path: string;
-  upload_path: string;
+  originalPath: string;
+  uploadPath: string;
   size: string;
-  batch_id: string;
-  owner_id: string;
+  batchId: string;
+  ownerId: string;
   owner?: User;
-  access_level: UserRole;
-  upload_status: 'uploading' | 'completed' | 'failed';
-  vector_status: 'processing' | 'completed' | 'failed';
-  created_at: string;
-  upload_completed_at: string;
-  vector_completed_at: string;
+  accessLevel: UserRole;
+  uploadStatus: 'uploading' | 'completed' | 'failed';
+  vectorStatus: 'processing' | 'completed' | 'failed';
+  createdAt: string;
+  uploadCompletedAt: string;
+  vectorCompletedAt: string;
 };
 
 export type FileUploadProgress = {

@@ -13,7 +13,7 @@ export const addMessage = async (
 ): Promise<ChatMessage> => {
   const message: ChatMessage = {
     id: randomUUID(),
-    thread_id: threadId,
+    threadId,
     role,
     content,
     timestamp: new Date().toISOString(),
@@ -34,7 +34,7 @@ export const getMessages = async (
   offset: number = 0
 ): Promise<ChatMessage[]> => {
   const messages = await db.query.messages.findMany({
-    where: (table, { eq }) => eq(table.thread_id, threadId),
+    where: (table, { eq }) => eq(table.threadId, threadId),
     orderBy: (table, { desc }) => [desc(table.timestamp)],
     limit,
     offset
@@ -59,7 +59,7 @@ export const getThreadMessageCount = async (
 ): Promise<number> => {
   const threadMessageCount = await db.$count(
     messages,
-    eq(messages.thread_id, threadId)
+    eq(messages.threadId, threadId)
   );
 
   return threadMessageCount || (0 as number);
@@ -71,7 +71,7 @@ export const searchMessages = async (
 ): Promise<ChatMessage[]> => {
   const search = await db.query.messages.findMany({
     where: and(
-      threadId ? eq(messages.thread_id, threadId) : undefined,
+      threadId ? eq(messages.threadId, threadId) : undefined,
       like(messages.content, query)
     ),
     orderBy: [desc(messages.timestamp)],

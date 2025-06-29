@@ -30,9 +30,9 @@ export const uploadFile = createRoute({
         message: z.string(),
         code: z.number(),
         file: selectFileSchema.extend({
-          progress_url: z.string(),
-          vector_progress_url: z.string().optional(),
-          supports_vector_processing: z.boolean().optional()
+          progressUrl: z.string(),
+          vectorProgressUrl: z.string().optional(),
+          supportsVectorProcessing: z.boolean().optional()
         })
       }),
       'File uploaded successfully'
