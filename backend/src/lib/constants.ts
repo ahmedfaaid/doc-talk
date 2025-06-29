@@ -37,6 +37,8 @@ export const fileExtensions: [string, ...string[]] = [
 
 export const UPLOAD_DIR = 'uploads';
 
+export const VECTOR_DIR = 'vectorstore';
+
 export const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 
 export const uploadProgress = new Map<string, FileUploadProgress>();
