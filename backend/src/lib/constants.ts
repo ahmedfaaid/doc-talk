@@ -1,3 +1,5 @@
+import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
+import { ChunkAndStoreProgress, FileUploadProgress } from '../types';
 import createMessageObjectSchema from './create-message-object';
 import * as HttpStatusPhrases from './http-status-phrases';
 
@@ -37,7 +39,11 @@ export const UPLOAD_DIR = 'uploads';
 
 export const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 
-export const uploadProgress = new Map<
-  string,
-  { loaded: number; total: number; status: string }
->();
+export const uploadProgress = new Map<string, FileUploadProgress>();
+
+export const chunkAndStoreProgress = new Map<string, ChunkAndStoreProgress>();
+
+export const textSplitter = new RecursiveCharacterTextSplitter({
+  chunkSize: 1000,
+  chunkOverlap: 200
+});
