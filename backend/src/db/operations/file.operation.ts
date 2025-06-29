@@ -48,8 +48,27 @@ export const updateUploadProgress = async (
   const [updatedFile] = await db
     .update(files)
     .set({
-      status,
-      completed_at: status === 'completed' ? new Date().toISOString() : ''
+      upload_status: status,
+      upload_completed_at:
+        status === 'completed' ? new Date().toISOString() : ''
+    })
+    .where(eq(files.id, upload_id))
+    .returning();
+
+  return updatedFile as File;
+};
+
+export const updateVectorProgress = async (
+  upload_id: string,
+  status: 'processing' | 'completed' | 'failed',
+  vectorStorePath?: string
+): Promise<File> => {
+  const [updatedFile] = await db
+    .update(files)
+    .set({
+      vector_status: status,
+      vector_completed_at: new Date().toISOString(),
+      vector_store_path: vectorStorePath || ''
     })
     .where(eq(files.id, upload_id))
     .returning();
