@@ -18,7 +18,10 @@ export const uploadFile = async (
   userId: string
 ): Promise<File | null> => {
   const user = await db.query.users.findFirst({
-    where: eq(users.id, userId)
+    where: eq(users.id, userId),
+    with: {
+      parent: true
+    }
   });
 
   if (!user) {
@@ -27,10 +30,14 @@ export const uploadFile = async (
 
   let ownerId: string;
 
-  if (user.parentId) {
+  if (user.parentId && user.parent) {
     ownerId = user.parentId;
   } else {
     ownerId = user.id;
+  }
+
+  if (!hasAccess(user.role, file.accessLevel)) {
+    throw new Error('User does not have permission to upload this file');
   }
 
   const [newFile] = await db
