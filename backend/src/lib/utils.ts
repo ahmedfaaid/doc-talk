@@ -12,8 +12,8 @@ export const getLastPathSegment = (path: string): string => {
   return path.substring(path.lastIndexOf('/') + 1);
 };
 
-export const createVectorStorePath = (user_id: string, upload_id: string) => {
-  return join(VECTOR_DIR, user_id, upload_id);
+export const createVectorStorePath = (userId: string, uploadId: string) => {
+  return join(VECTOR_DIR, userId, uploadId);
 };
 
 export const createUploadFilePath = (
