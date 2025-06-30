@@ -1,4 +1,4 @@
-import { eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { db } from '..';
 import hasAccess, { getAccessibleRoles } from '../../lib/access';
 import { File } from '../../types';
@@ -113,4 +113,39 @@ export const getUserFiles = async (userId: string): Promise<File[]> => {
   });
 
   return searchedFiles as File[];
+};
+
+export const getFileById = async (
+  fileId: string,
+  userId: string
+): Promise<File | null> => {
+  const user = await getUser(userId, undefined);
+
+  if (!user) {
+    return null;
+  }
+
+  const accessibleRoles = getAccessibleRoles(user.role);
+
+  if (accessibleRoles.length === 0) {
+    return null;
+  }
+
+  const file = await db.query.files.findFirst({
+    where: and(
+      eq(files.id, fileId),
+      eq(files.ownerId, user.parentId || user.id),
+      inArray(files.accessLevel, accessibleRoles)
+    )
+  });
+
+  if (!file) {
+    return null;
+  }
+
+  if (!hasAccess(user.role, file.accessLevel!)) {
+    throw new Error('User does not have permission to access this file');
+  }
+
+  return file as File;
 };
