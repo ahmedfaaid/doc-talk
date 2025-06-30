@@ -1,8 +1,10 @@
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import { db } from '..';
+import hasAccess, { getAccessibleRoles } from '../../lib/access';
 import { File } from '../../types';
 import { files } from '../schema/file.schema';
 import { users } from '../schema/user.schema';
+import { getUser } from './user.operation';
 
 export const uploadFile = async (
   file: Omit<
@@ -80,4 +82,35 @@ export const updateVectorProgress = async (
     .returning();
 
   return updatedFile as File;
+};
+
+export const getUserFiles = async (userId: string): Promise<File[]> => {
+  const user = await getUser(userId, undefined);
+
+  if (!user) {
+    return [];
+  }
+
+  let filesOwnerId: string;
+
+  if (user.parentId && user.parent) {
+    filesOwnerId = user.parentId;
+  } else {
+    filesOwnerId = user.id;
+  }
+
+  const accessibleRoles = getAccessibleRoles(user.role);
+
+  if (accessibleRoles.length === 0) {
+    return [];
+  }
+
+  const searchedFiles = await db.query.files.findMany({
+    where: inArray(files.accessLevel, accessibleRoles),
+    with: {
+      owner: true
+    }
+  });
+
+  return searchedFiles as File[];
 };
