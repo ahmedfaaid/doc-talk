@@ -22,7 +22,9 @@ export const getUser = async (
   const user = await db.query.users.findFirst({
     where: userId ? eq(users.id, userId) : eq(users.email, email!),
     with: {
-      parent: true
+      parent: true,
+      subs: true,
+      files: true
     }
   });
 
