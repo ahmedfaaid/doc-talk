@@ -11,18 +11,20 @@ import { streamSSE } from 'hono/streaming';
 import { createStuffDocumentsChain } from 'langchain/chains/combine_documents';
 import { createHistoryAwareRetriever } from 'langchain/chains/history_aware_retriever';
 import { createRetrievalChain } from 'langchain/chains/retrieval';
-import { getDirectory } from '../db/operations/directory.operation';
+import { getFileById } from '../db/operations/file.operation';
 import { addMessage } from '../db/operations/message.operation';
 import { createThread, getThread } from '../db/operations/thread.operation';
+import { getUser } from '../db/operations/user.operation';
 import { embeddings, llm } from '../lib/AI';
 import { DbChatMessageHistory } from '../lib/chat';
 import {
   BAD_REQUEST,
   INTERNAL_SERVER_ERROR,
-  NOT_FOUND
+  NOT_FOUND,
+  UNAUTHORIZED
 } from '../lib/http-status-codes';
 import { contextualPrompt, systemPrompt } from '../lib/prompts';
-import { createVectorStorePath, getLastPathSegment } from '../lib/utils';
+import { createVectorStorePath } from '../lib/utils';
 import { ChatRoute } from '../routes/chat/chat.route';
 import { AppRouteHandler } from '../types';
 
@@ -32,7 +34,8 @@ function getSessionHistory(sessionId: string): BaseChatMessageHistory {
 
 export const chat: AppRouteHandler<ChatRoute> = async (c: Context) => {
   try {
-    const { query, directoryPath, threadId, title } = await c.req.json();
+    const { query, fileId, threadId, title } = await c.req.json();
+    const payload = c.get('user');
 
     if (!query) {
       return c.json(
@@ -41,9 +44,36 @@ export const chat: AppRouteHandler<ChatRoute> = async (c: Context) => {
       );
     }
 
-    if (!directoryPath) {
+    if (!fileId) {
       return c.json(
-        { message: 'Directory path is required', code: BAD_REQUEST },
+        { message: 'File id is required', code: BAD_REQUEST },
+        BAD_REQUEST
+      );
+    }
+
+    const user = await getUser(payload.id, undefined);
+
+    if (!user) {
+      return c.json(
+        { message: 'User is not authorized', code: UNAUTHORIZED },
+        UNAUTHORIZED
+      );
+    }
+
+    const file = await getFileById(fileId, user?.id!);
+
+    if (!file) {
+      return c.json({ message: 'File not found', code: NOT_FOUND }, NOT_FOUND);
+    }
+
+    if (file.vectorStatus === 'processing') {
+      return c.json(
+        { message: 'File is still being processed', code: BAD_REQUEST },
+        BAD_REQUEST
+      );
+    } else if (file.vectorStatus === 'failed') {
+      return c.json(
+        { message: 'File vectorization failed', code: BAD_REQUEST },
         BAD_REQUEST
       );
     }
@@ -51,13 +81,10 @@ export const chat: AppRouteHandler<ChatRoute> = async (c: Context) => {
     // Handle thread creation/retrieval
     let currentThreadId = threadId;
     if (!currentThreadId) {
-      const thread = await createThread(
-        title || `Chat: ${getLastPathSegment(directoryPath)}`,
-        {
-          directoryPath,
-          createdAt: new Date().toISOString()
-        }
-      );
+      const thread = await createThread(title || `Chat: ${file.filename}`, {
+        filename: file.filename,
+        createdAt: new Date().toISOString()
+      });
       currentThreadId = thread.id;
     }
 
@@ -70,25 +97,11 @@ export const chat: AppRouteHandler<ChatRoute> = async (c: Context) => {
       );
     }
 
-    // Check if directory is indexed
-    const directory = await getDirectory(directoryPath);
-
-    if (!directory) {
-      return c.json(
-        {
-          message: 'The selected directory has not been indexed',
-          code: BAD_REQUEST,
-          directory: null
-        },
-        BAD_REQUEST
-      );
-    }
-
     // Add user message to database
     await addMessage(currentThreadId, 'user', query);
 
     // Retrieve the vector store contents
-    const vector_path = createVectorStorePath(directory.name);
+    const vector_path = createVectorStorePath(user.id, fileId);
     const vectorStore = await HNSWLib.load(vector_path, embeddings);
 
     const retriever = vectorStore.asRetriever();
@@ -166,7 +179,7 @@ export const chat: AppRouteHandler<ChatRoute> = async (c: Context) => {
               pageContent: doc.pageContent,
               metadata: doc.metadata
             })),
-            directory: directory.name,
+            file: file.filename,
             timestamp: new Date().toISOString()
           });
         }
