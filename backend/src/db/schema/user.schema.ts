@@ -1,10 +1,7 @@
 import { randomUUID } from 'crypto';
-import { relations } from 'drizzle-orm';
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { createInsertSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { directories } from './directory.schema';
-import { files } from './file.schema';
 
 export const users = sqliteTable('users', {
   id: text('id', { mode: 'text' }).primaryKey().default(randomUUID()).notNull(),
@@ -31,16 +28,6 @@ export const users = sqliteTable('users', {
     .default(new Date().toISOString())
     .$onUpdate(() => new Date().toISOString())
 });
-
-export const userRelations = relations(users, ({ one, many }) => ({
-  subs: many(users),
-  parent: one(users, {
-    fields: [users.parentId],
-    references: [users.id]
-  }),
-  directories: many(directories),
-  files: many(files)
-}));
 
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,

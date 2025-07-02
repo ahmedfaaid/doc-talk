@@ -1,8 +1,6 @@
 import { randomUUID } from 'crypto';
-import { relations } from 'drizzle-orm';
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { z } from 'zod';
-import { users } from './user.schema';
 
 export const directories = sqliteTable('directories', {
   id: text('id', { mode: 'text' }).primaryKey().default(randomUUID()).notNull(),
@@ -17,13 +15,6 @@ export const directories = sqliteTable('directories', {
   }),
   createdAt: text('created_at').notNull().default(new Date().toISOString())
 });
-
-export const directoryRelations = relations(directories, ({ one }) => ({
-  owner: one(users, {
-    fields: [directories.ownerId],
-    references: [users.id]
-  })
-}));
 
 export const insertDirectorySchema = z.object({
   name: z.string(),

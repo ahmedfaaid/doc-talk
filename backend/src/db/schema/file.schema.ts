@@ -1,9 +1,8 @@
 import { randomUUID } from 'crypto';
-import { relations } from 'drizzle-orm';
 import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import z from 'zod';
 import { fileExtensions } from '../../lib/constants';
-import { selectUserSchema, users } from './user.schema';
+import { selectUserSchema } from './user.schema';
 
 export const files = sqliteTable('files', {
   id: text('id', { mode: 'text' }).primaryKey().default(randomUUID()).notNull(),
@@ -36,13 +35,6 @@ export const files = sqliteTable('files', {
   uploadCompletedAt: text('upload_completed_at', { mode: 'text' }).default(''),
   vectorCompletedAt: text('vector_completed_at', { mode: 'text' }).default('')
 });
-
-export const fileRelations = relations(files, ({ one }) => ({
-  owner: one(users, {
-    fields: [files.ownerId],
-    references: [users.id]
-  })
-}));
 
 export const insertFileSchema = z.object({
   filename: z.string(),
