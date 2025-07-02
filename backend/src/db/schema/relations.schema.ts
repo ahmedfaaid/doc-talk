@@ -18,10 +18,11 @@ export const fileRelations = relations(files, ({ one }) => ({
 }));
 
 export const userRelations = relations(users, ({ one, many }) => ({
-  subs: many(users),
+  subs: many(users, { relationName: 'parent_user' }),
   parent: one(users, {
     fields: [users.parentId],
-    references: [users.id]
+    references: [users.id],
+    relationName: 'parent_user'
   }),
   directories: many(directories),
   files: many(files)
