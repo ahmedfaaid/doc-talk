@@ -1,16 +1,6 @@
 import { OpenAPIHono, RouteConfig, RouteHandler, z } from '@hono/zod-openapi';
 import { PinoLogger } from 'hono-pino';
 
-export type Directory = {
-  id: string;
-  name: string;
-  directoryPath: string;
-  vectorPath: string;
-  indexed: boolean;
-  ownerId: string;
-  createdAt: string;
-};
-
 export type ChatThread = {
   id: string;
   title: string;
