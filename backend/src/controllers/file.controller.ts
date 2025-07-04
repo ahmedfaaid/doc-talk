@@ -5,7 +5,7 @@ import { getUser } from '../db/operations/user.operation';
 import {
   fileExtensions,
   MAX_FILE_SIZE,
-  uploadProgress
+  uploadProgress as uploadProgressMap
 } from '../lib/constants';
 import {
   BAD_REQUEST,
@@ -66,7 +66,7 @@ export const uploadFile: AppRouteHandler<UploadFileRoute> = async (
 
     const uploadId = randomUUID();
 
-    uploadProgress.set(uploadId, {
+    uploadProgressMap.set(uploadId, {
       loaded: 0,
       total: file.size,
       status: 'uploading'
