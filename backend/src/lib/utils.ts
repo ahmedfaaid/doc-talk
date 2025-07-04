@@ -12,16 +12,16 @@ export const getLastPathSegment = (path: string): string => {
   return path.substring(path.lastIndexOf('/') + 1);
 };
 
-export const createVectorStorePath = (userId: string, uploadId: string) => {
-  return join(VECTOR_DIR, userId, uploadId);
+export const createVectorStorePath = (ownerId: string, uploadId: string) => {
+  return join(VECTOR_DIR, ownerId, uploadId);
 };
 
 export const createUploadFilePath = (
   name: string,
   extension: string,
-  userId: string
+  ownerId: string
 ) => {
-  return join(UPLOAD_DIR, `${userId}-${name}.${extension}`);
+  return join(UPLOAD_DIR, `${ownerId}-${name}.${extension}`);
 };
 
 export const docLoader = (filePath: string, extension: FileExtension) => {

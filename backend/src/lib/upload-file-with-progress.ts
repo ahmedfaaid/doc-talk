@@ -8,7 +8,7 @@ async function uploadFileWithProgress(
   file: File,
   uploadPath: string,
   uploadId: string,
-  userId?: string,
+  ownerId?: string,
   filename?: string,
   extension?: FileExtension
 ) {
@@ -54,11 +54,11 @@ async function uploadFileWithProgress(
 
     if (
       extension &&
-      userId &&
+      ownerId &&
       filename &&
       fileExtensions.includes(extension.toLowerCase() as any)
     ) {
-      chunkAndStore(uploadPath, filename, extension, uploadId, userId);
+      chunkAndStore(uploadPath, filename, extension, uploadId, ownerId);
     }
   } catch (error) {
     await updateUploadProgress(uploadId, 'failed');
