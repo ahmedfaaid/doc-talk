@@ -14,7 +14,7 @@ export async function chunkAndStore(
   filename: string,
   extension: FileExtension,
   uploadId: string,
-  userId: string
+  ownerId: string
 ) {
   try {
     // Initialize progress
@@ -63,7 +63,7 @@ export async function chunkAndStore(
       ...chunk,
       metadata: {
         ...chunk.metadata,
-        userId,
+        ownerId,
         filename,
         uploadId,
         chunk_index: index,
@@ -81,7 +81,7 @@ export async function chunkAndStore(
       'processing',
       'Creating embeddings'
     );
-    const vector_path = createVectorStorePath(userId, uploadId);
+    const vector_path = createVectorStorePath(ownerId, uploadId);
 
     // Create embeddings in batches to track progress
     const batchSize = 10;

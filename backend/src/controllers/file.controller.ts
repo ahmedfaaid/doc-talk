@@ -34,7 +34,11 @@ export const uploadFile: AppRouteHandler<UploadFileRoute> = async (
     const batchId = body['batchId'] as string;
     const accessLevel = body['accessLevel'] as UserRole;
 
-    const uploadPath = createUploadFilePath(filename, extension, user?.id!);
+    const uploadPath = createUploadFilePath(
+      filename,
+      extension,
+      user?.parentId! || user?.id!
+    );
 
     if (!file || !(file instanceof File)) {
       return c.json(
@@ -89,11 +93,11 @@ export const uploadFile: AppRouteHandler<UploadFileRoute> = async (
       );
     }
 
-    uploadFileWithProgress(
+    await uploadFileWithProgress(
       file,
       uploadPath,
       uploadId,
-      user?.id,
+      newFile.ownerId,
       filename,
       extension
     );
