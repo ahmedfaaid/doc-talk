@@ -24,7 +24,13 @@ dist-ssr
 *.sw?
 
 .env
-.env.*
+.env.development
+.env.production
+.env.test
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 vectorstore
 *.sqlite
