@@ -34,10 +34,10 @@ function getSessionHistory(sessionId: string): BaseChatMessageHistory {
 
 export const chat: AppRouteHandler<ChatRoute> = async (c: Context) => {
   try {
-    const { query, fileId, threadId, title } = await c.req.json();
+    const { content, fileId, threadId, title, role } = await c.req.json();
     const payload = c.get('user');
 
-    if (!query) {
+    if (!content) {
       return c.json(
         { message: 'Query is required', code: BAD_REQUEST },
         BAD_REQUEST
@@ -98,7 +98,7 @@ export const chat: AppRouteHandler<ChatRoute> = async (c: Context) => {
     }
 
     // Add user message to database
-    await addMessage(currentThreadId, 'user', query);
+    await addMessage(currentThreadId, role, content);
 
     // Retrieve the vector store contents
     const vector_path = createVectorStorePath(user.id, fileId);
@@ -151,7 +151,7 @@ export const chat: AppRouteHandler<ChatRoute> = async (c: Context) => {
 
       try {
         for await (const s of await conversationalRagChain.stream(
-          { input: query },
+          { input: content },
           { configurable: { sessionId: currentThreadId } }
         )) {
           // Collect the full response and sources
