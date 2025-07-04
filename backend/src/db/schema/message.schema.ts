@@ -30,7 +30,7 @@ export const messages = sqliteTable(
 );
 
 export const insertMessageSchema = z.object({
-  threadId: z.string().uuid(),
+  threadId: z.string().uuid().optional(),
   fileId: z.string().uuid(),
   role: z.enum(['user', 'assistant', 'system']),
   title: z.string().optional(),
