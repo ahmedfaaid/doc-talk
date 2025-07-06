@@ -153,3 +153,45 @@ export const getFileById = async (
 
   return file as File;
 };
+
+export const getFileVectorProcessingStatus = async (
+  fileId: string,
+  userId: string
+): Promise<Pick<
+  File,
+  'vectorStatus' | 'vectorCompletedAt' | 'vectorStorePath'
+> | null> => {
+  const user = await getUser(userId, undefined);
+
+  if (!user) {
+    return null;
+  }
+
+  const accessibleRoles = getAccessibleRoles(user.role);
+
+  if (accessibleRoles.length === 0) {
+    return null;
+  }
+
+  const file = await db.query.files.findFirst({
+    where: and(
+      eq(files.id, fileId),
+      eq(files.ownerId, user.parentId || user.id),
+      inArray(files.accessLevel, accessibleRoles)
+    )
+  });
+
+  if (!file) {
+    return null;
+  }
+
+  if (!hasAccess(user.role, file.accessLevel!)) {
+    throw new Error('User does not have permission to access this file');
+  }
+
+  return {
+    vectorStatus: file.vectorStatus,
+    vectorCompletedAt: file.vectorCompletedAt,
+    vectorStorePath: file.vectorStorePath
+  };
+};
