@@ -86,5 +86,42 @@ export const uploadProgress = createRoute({
   }
 });
 
+export const vectorProgress = createRoute({
+  tags: [...tags, 'vector'],
+  method: 'get',
+  path: '/files/vector/progress/{id}',
+  request: {
+    params: idParamsSchema
+  },
+  responses: {
+    [HttpStatusCodes.OK]: streamContent(
+      z.object({
+        data: z.string(),
+        event: z.string()
+      }),
+      'The vector progress stream'
+    ),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      z.object({
+        message: z.string(),
+        code: z.number()
+      }),
+      'Validation error for file vector progress'
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
+      z.object({
+        message: z.string(),
+        code: z.number()
+      }),
+      'Upload not found'
+    ),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      serverErrorSchema,
+      'Server error'
+    )
+  }
+});
+
 export type UploadFileRoute = typeof uploadFile;
 export type UploadProgressRoute = typeof uploadProgress;
+export type VectorProgressRoute = typeof vectorProgress;
