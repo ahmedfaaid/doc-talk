@@ -106,7 +106,10 @@ export const getUserFiles = async (userId: string): Promise<File[]> => {
   }
 
   const searchedFiles = await db.query.files.findMany({
-    where: inArray(files.accessLevel, accessibleRoles),
+    where: and(
+      eq(files.ownerId, filesOwnerId),
+      inArray(files.accessLevel, accessibleRoles)
+    ),
     with: {
       owner: true
     }
