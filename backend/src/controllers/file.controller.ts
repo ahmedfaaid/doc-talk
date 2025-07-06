@@ -1,9 +1,14 @@
 import { randomUUID } from 'crypto';
 import { Context } from 'hono';
 import { streamSSE } from 'hono/streaming';
-import { getFileById, uploadFile as uf } from '../db/operations/file.operation';
+import {
+  getFileById,
+  getFileVectorProcessingStatus,
+  uploadFile as uf
+} from '../db/operations/file.operation';
 import { getUser } from '../db/operations/user.operation';
 import {
+  chunkAndStoreProgress,
   fileExtensions,
   MAX_FILE_SIZE,
   uploadProgress as uploadProgressMap
@@ -17,7 +22,8 @@ import uploadFileWithProgress from '../lib/upload-file-with-progress';
 import { createUploadFilePath } from '../lib/utils';
 import {
   UploadFileRoute,
-  UploadProgressRoute
+  UploadProgressRoute,
+  VectorProgressRoute
 } from '../routes/file/file.route';
 import { AppRouteHandler, FileExtension, UserRole } from '../types';
 
@@ -112,16 +118,16 @@ export const uploadFile: AppRouteHandler<UploadFileRoute> = async (
 
     return c.json(
       {
-      message: 'File upload started successfully',
-      code: CREATED,
-      file: {
-        ...newFile,
-        progressUrl: `/files/progress/${uploadId}`,
-        ...(supportsVectorProcessing && {
-          vectorProgressUrl: `/files/vector-progress/${uploadId}`,
-          supportsVectorProcessing: true
-        })
-      }
+        message: 'File upload started successfully',
+        code: CREATED,
+        file: {
+          ...newFile,
+          progressUrl: `/files/progress/${uploadId}`,
+          ...(supportsVectorProcessing && {
+            vectorProgressUrl: `/files/vector-progress/${uploadId}`,
+            supportsVectorProcessing: true
+          })
+        }
       },
       CREATED
     );
@@ -244,6 +250,130 @@ export const uploadProgress: AppRouteHandler<UploadProgressRoute> = async (
       }, 500);
 
       // Cleanup on connection close
+      stream.onAbort(() => {
+        clearInterval(interval);
+      });
+    });
+  } catch (error) {
+    return c.json(
+      {
+        message: (error as Error).message,
+        code: INTERNAL_SERVER_ERROR
+      },
+      INTERNAL_SERVER_ERROR
+    );
+  }
+};
+
+export const vectorProgress: AppRouteHandler<VectorProgressRoute> = async (
+  c: Context
+) => {
+  try {
+    const uploadId = c.req.param('id');
+    const payload = c.get('user');
+
+    if (!uploadId) {
+      return c.json(
+        { message: 'Upload ID is required', code: BAD_REQUEST },
+        BAD_REQUEST
+      );
+    }
+
+    return streamSSE(c, async stream => {
+      const sendProgress = async () => {
+        const progress = chunkAndStoreProgress.get(uploadId);
+        if (!progress) {
+          try {
+            const file = await getFileById(uploadId, payload.id);
+
+            // Check if the file exists or the upload has completed
+            if (!file || file.uploadStatus !== 'completed') {
+              await stream.writeSSE({
+                data: JSON.stringify({ error: 'Upload not found' }),
+                event: 'error'
+              });
+              await stream.close();
+              return;
+            }
+
+            const vectorDbStatus = await getFileVectorProcessingStatus(
+              uploadId,
+              payload.id
+            );
+
+            console.log({ vectorDbStatus });
+
+            // Check if the database has been updated with the vector status
+            if (vectorDbStatus?.vectorStatus === 'completed') {
+              await stream.writeSSE({
+                data: JSON.stringify({
+                  uploadId,
+                  status: vectorDbStatus.vectorStatus,
+                  loaded: vectorDbStatus.vectorStatus === 'completed' ? 100 : 0,
+                  total: 100,
+                  stage:
+                    vectorDbStatus.vectorStatus === 'completed'
+                      ? 'storing'
+                      : 'loading'
+                }),
+                event: 'progress'
+              });
+              await stream.close();
+              return;
+            }
+
+            // If status is still 'pending' or 'uploading', but not in memory
+            // This might indicate the server restarted during upload
+            await stream.writeSSE({
+              data: JSON.stringify({
+                error: 'Upload session lost. Please restart upload.',
+                uploadId,
+                status: file.uploadStatus
+              }),
+              event: 'error'
+            });
+            await stream.close();
+            return;
+          } catch (error) {
+            await stream.writeSSE({
+              data: JSON.stringify({ error: 'Database error occurred' }),
+              event: 'error'
+            });
+            await stream.close();
+            return;
+          }
+        }
+
+        const progressData = {
+          uploadId,
+          loaded: progress.loaded,
+          total: progress.total,
+          percentage: Math.round((progress.loaded / progress.total) * 100),
+          status: progress.status,
+          stage: progress.stage
+        };
+
+        await stream.writeSSE({
+          data: JSON.stringify(progressData),
+          event: 'progress'
+        });
+
+        // Clean up when complete or failed
+        if (progress.status === 'completed' || progress.status === 'failed') {
+          chunkAndStoreProgress.delete(uploadId);
+          await stream.close();
+        }
+      };
+
+      // Send initial progress
+      await sendProgress();
+
+      // Send progress updates every 500ms
+      const interval = setInterval(async () => {
+        await sendProgress();
+      }, 500);
+
+      // Clean up on connection close
       stream.onAbort(() => {
         clearInterval(interval);
       });
