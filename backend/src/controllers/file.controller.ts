@@ -301,8 +301,6 @@ export const vectorProgress: AppRouteHandler<VectorProgressRoute> = async (
               payload.id
             );
 
-            console.log({ vectorDbStatus });
-
             // Check if the database has been updated with the vector status
             if (vectorDbStatus?.vectorStatus === 'completed') {
               await stream.writeSSE({
