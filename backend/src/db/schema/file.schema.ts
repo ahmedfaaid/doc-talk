@@ -51,14 +51,15 @@ export const selectFileSchema = z.object({
   extension: z.string(),
   originalPath: z.string(),
   uploadPath: z.string(),
+  vectorStorePath: z.string().optional(),
   size: z.string(),
   batchId: z.string(),
   ownerId: z.string(),
   accessLevel: z.enum(['user', 'admin', 'superadmin']),
   uploadStatus: z.enum(['uploading', 'completed', 'failed']),
   vectorStatus: z.enum(['processing', 'completed', 'failed']).optional(),
-  uploadCompletedAt: z.string(),
-  vectorCompletedAt: z.string(),
+  uploadCompletedAt: z.string().optional(),
+  vectorCompletedAt: z.string().optional(),
   owner: selectUserSchema.optional(),
   createdAt: z.string()
 });
