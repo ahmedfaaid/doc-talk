@@ -4,6 +4,7 @@ import * as routes from './file.route';
 
 const router = createRouter()
   .openapi(routes.uploadFile, fileController.uploadFile)
-  .openapi(routes.uploadProgress, fileController.uploadProgress);
+  .openapi(routes.uploadProgress, fileController.uploadProgress)
+  .openapi(routes.vectorProgress, fileController.vectorProgress);
 
 export default router;
