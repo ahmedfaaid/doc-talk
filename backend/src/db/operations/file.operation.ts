@@ -13,6 +13,7 @@ export const uploadFile = async (
     | 'owner'
     | 'uploadStatus'
     | 'vectorStatus'
+    | 'vectorStorePath'
     | 'createdAt'
     | 'uploadCompletedAt'
     | 'vectorCompletedAt'
