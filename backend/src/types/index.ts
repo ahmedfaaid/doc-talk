@@ -77,16 +77,17 @@ export type File = {
   extension: FileExtension;
   originalPath: string;
   uploadPath: string;
+  vectorStorePath: string | null;
   size: string;
   batchId: string;
   ownerId: string;
   owner?: User;
   accessLevel: UserRole;
   uploadStatus: 'uploading' | 'completed' | 'failed';
-  vectorStatus: 'processing' | 'completed' | 'failed';
+  vectorStatus: 'processing' | 'completed' | 'failed' | null;
   createdAt: string;
   uploadCompletedAt: string;
-  vectorCompletedAt: string;
+  vectorCompletedAt: string | null;
 };
 
 export type FileUploadProgress = {
