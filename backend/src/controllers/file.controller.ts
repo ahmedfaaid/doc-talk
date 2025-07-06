@@ -110,7 +110,8 @@ export const uploadFile: AppRouteHandler<UploadFileRoute> = async (
       extension.toLowerCase() as any
     );
 
-    return c.json({
+    return c.json(
+      {
       message: 'File upload started successfully',
       code: CREATED,
       file: {
@@ -121,7 +122,9 @@ export const uploadFile: AppRouteHandler<UploadFileRoute> = async (
           supportsVectorProcessing: true
         })
       }
-    });
+      },
+      CREATED
+    );
   } catch (error) {
     return c.json({ message: (error as Error).message }, INTERNAL_SERVER_ERROR);
   }
