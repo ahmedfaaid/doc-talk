@@ -231,7 +231,7 @@ export const uploadProgress: AppRouteHandler<UploadProgressRoute> = async (
         // Clean up when complete or failed
         if (progress.status === 'completed' || progress.status === 'failed') {
           uploadProgressMap.delete(uploadId);
-          stream.close();
+          await stream.close();
         }
       };
 
