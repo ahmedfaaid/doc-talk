@@ -29,7 +29,11 @@ export default function createApp() {
 
   app.use('/api/*', csrf());
   app.use('/api/*', async (c, next) => {
-    if (c.req.path.startsWith('/api/auth') && c.req.path !== '/api/auth/me') {
+    if (
+      c.req.path.startsWith('/api/auth') &&
+      c.req.path !== '/api/auth/me' &&
+      c.req.path !== '/api/auth/logout'
+    ) {
       return next();
     }
 
