@@ -66,6 +66,7 @@ export const loginSchema = z.object({
 
 export const registerSchema = z.object({
   email: z.string().email(),
+  password: z.string(),
   firstName: z.string(),
   lastName: z.string(),
   company: z.string().nullable(),
