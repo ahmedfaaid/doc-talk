@@ -3,7 +3,7 @@ import { z, ZodError } from 'zod';
 const EnvSchema = z
   .object({
     HUGGING_FACE_TOKEN: z.string().optional(),
-    DB_FILE_NAME: z.string().url(),
+    DB_FILE_NAME: z.string(),
     JWT_SECRET_KEY: z.string(),
     PORT: z.coerce.number().default(5155),
     NODE_ENV: z
