@@ -80,6 +80,25 @@ export const me = createRoute({
   ]
 });
 
+export const logout = createRoute({
+  tags,
+  method: 'post',
+  path: 'auth/logout',
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      z.object({
+        success: z.boolean()
+      }),
+      'Logout response'
+    ),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      serverErrorSchema,
+      'Server error'
+    )
+  }
+});
+
 export type LoginRoute = typeof login;
 export type RegisterRoute = typeof register;
 export type MeRoute = typeof me;
+export type LogoutRoute = typeof logout;
