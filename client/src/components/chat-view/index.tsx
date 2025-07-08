@@ -3,7 +3,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { SelectedDirectoryContext } from '@/context/directory-dialog';
 import { Message as Msg } from '@/types';
 import { FormEvent, useContext, useEffect, useRef, useState } from 'react';
-import Message from '../message';
+import Message from '../Message';
 
 export default function ChatView() {
   const { directory } = useContext(SelectedDirectoryContext);
@@ -104,7 +104,7 @@ export default function ChatView() {
     <div className='flex h-full flex-col'>
       <div className='mx-auto flex h-full w-3/4 flex-col'>
         {/* Chat messages container - scrollable */}
-        <div className='scrollbar-thin scrollbar-thumb-zinc-200 my-2 flex-1 overflow-y-auto rounded-md border border-zinc-200 p-2'>
+        <div className='my-2 flex-1 overflow-y-auto rounded-md border border-zinc-200 p-2 scrollbar-thin scrollbar-thumb-zinc-200'>
           <div className='space-y-2'>
             {messages.map((message) => (
               <Message message={message} key={message.id} />
