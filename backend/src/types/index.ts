@@ -88,6 +88,11 @@ export type File = {
   createdAt: string;
   uploadCompletedAt: string;
   vectorCompletedAt: string | null;
+  // Legal document specific fields
+  isLegalDocument?: boolean;
+  jurisdiction?: string;
+  documentType?: string;
+  chunkCount?: number;
 };
 
 export type FileUploadProgress = {

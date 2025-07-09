@@ -10,8 +10,9 @@ async function uploadFileWithProgress(
   uploadId: string,
   ownerId?: string,
   filename?: string,
-  extension?: FileExtension
-) {
+  extension?: FileExtension,
+  isLegal?: boolean
+)
   try {
     const buffer = await file.arrayBuffer();
     const uint8Array = new Uint8Array(buffer);
@@ -52,14 +53,18 @@ async function uploadFileWithProgress(
       uploadProgress.set(uploadId, progress);
     }
 
+    // Return early if we don't need to process this file
     if (
-      extension &&
-      ownerId &&
-      filename &&
-      fileExtensions.includes(extension.toLowerCase() as any)
+      !extension ||
+      !ownerId ||
+      !filename ||
+      !fileExtensions.includes(extension.toLowerCase() as any)
     ) {
-      chunkAndStore(uploadPath, filename, extension, uploadId, ownerId);
+      return;
     }
+
+    // Don't process here - let the controller handle it so we can pass all parameters
+    // This will be handled in the controller after upload completes
   } catch (error) {
     await updateUploadProgress(uploadId, 'failed');
 

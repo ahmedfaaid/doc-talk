@@ -150,6 +150,29 @@ export const getFileById = async (
   if (!hasAccess(user.role, file.accessLevel!)) {
     throw new Error('User does not have permission to access this file');
   }
+  
+  // If it's a legal document and we have the necessary metadata, process it
+  if (
+    file.isLegalDocument && 
+    file.jurisdiction && 
+    file.documentType && 
+    file.ownerId
+  ) {
+    try {
+      await processLegalDocument(
+        file.uploadPath,
+        file.filename,
+        file.extension as FileExtension,
+        file.id,
+        file.ownerId,
+        file.jurisdiction,
+        file.documentType
+      );
+    } catch (error) {
+      console.error('Error processing legal document:', error);
+      // Handle error appropriately in production
+    }
+  }
 
   return file as File;
 };

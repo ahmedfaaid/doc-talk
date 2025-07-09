@@ -43,6 +43,9 @@ export const uploadFile: AppRouteHandler<UploadFileRoute> = async (
     const size = body['size'] as string;
     const batchId = body['batchId'] as string;
     const accessLevel = body['accessLevel'] as UserRole;
+    const isLegal = body['isLegal'] === 'true';
+    const jurisdiction = body['jurisdiction'] as string;
+    const documentType = body['documentType'] as string;
 
     const uploadPath = createUploadFilePath(
       filename,
@@ -54,6 +57,17 @@ export const uploadFile: AppRouteHandler<UploadFileRoute> = async (
       return c.json(
         {
           message: 'No valid file provided in multipart data',
+          code: BAD_REQUEST
+        },
+        BAD_REQUEST
+      );
+    }
+
+    // Validate legal document parameters if applicable
+    if (isLegal && (!jurisdiction || !documentType)) {
+      return c.json(
+        {
+          message: 'Jurisdiction and document type are required for legal documents',
           code: BAD_REQUEST
         },
         BAD_REQUEST
@@ -109,26 +123,29 @@ export const uploadFile: AppRouteHandler<UploadFileRoute> = async (
       uploadId,
       newFile.ownerId,
       filename,
-      extension
+      extension,
+      isLegal
     );
 
     const supportsVectorProcessing = fileExtensions.includes(
       extension.toLowerCase() as any
     );
+    const isLegalDocument = supportsVectorProcessing && isLegal;
 
     return c.json(
       {
         message: 'File upload started successfully',
-        code: CREATED,
-        file: {
-          ...newFile,
-          progressUrl: `/files/progress/${uploadId}`,
-          ...(supportsVectorProcessing && {
-            vectorProgressUrl: `/files/vector-progress/${uploadId}`,
-            supportsVectorProcessing: true
-          })
-        }
-      },
+      code: CREATED,
+      file: {
+        ...newFile,
+        progressUrl: `/files/progress/${uploadId}`,
+        ...(supportsVectorProcessing && {
+          vectorProgressUrl: `/files/vector-progress/${uploadId}`,
+          supportsVectorProcessing: true,
+          isLegalDocument
+        })
+      }
+    },
       CREATED
     );
   } catch (error) {
