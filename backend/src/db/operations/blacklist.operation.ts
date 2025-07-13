@@ -4,6 +4,7 @@ import { db } from '..';
 import { Blacklist } from '../../types';
 =======
 import { db } from '..';
+import { Blacklist } from '../../types';
 >>>>>>> 455d251 (backend: create blacklist operation)
 import { blacklist } from '../schema/blacklist.schema';
 
