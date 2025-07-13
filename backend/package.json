@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "bun run --hot src/index.ts",
-    "gen:migrations": "bun drizzle-kit generate",
-    "push:migrations": "bun drizzle-kit push"
+    "gen:migrations": "bun drizzle-kit generate --config=drizzle.config.ts",
+    "push:migrations": "bun drizzle-kit push --config=drizzle.config.ts"
   },
   "dependencies": {
     "@hono/zod-openapi": "^0.19.8",
