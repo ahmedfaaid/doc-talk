@@ -5,7 +5,7 @@ import { blacklist } from '../schema/blacklist.schema';
 
 export const createBlacklist = async (
   token: string,
-  expires: string
+  expires: number
 ): Promise<void> => {
   return await db
     .insert(blacklist)
