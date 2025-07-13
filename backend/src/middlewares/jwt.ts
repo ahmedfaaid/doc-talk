@@ -25,7 +25,7 @@ const jwtMiddleware = async (c: Context, next: Next) => {
       );
     }
 
-    c.set('user', { id: payload.id, email: payload.email });
+    c.set('user', { id: payload.id, email: payload.email, token });
 
     await next();
   } catch (error) {
