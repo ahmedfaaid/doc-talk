@@ -99,7 +99,7 @@ export const logout: AppRouteHandler<LogoutRoute> = async (c: Context) => {
     const user = c.get('user');
     const decodedToken = decode(user.token);
 
-    await createBlacklist(user.token, decodedToken.payload.expires as string);
+    await createBlacklist(user.token, decodedToken.payload.exp as number);
 
     return c.json({ success: true }, OK);
   } catch (error) {
