@@ -115,3 +115,10 @@ export type ChunkAndStoreProgress = {
   stage: 'loading' | 'chunking' | 'embedding' | 'storing';
   message?: string;
 };
+
+export type Blacklist = {
+  id: string;
+  token: string;
+  expiresAt: string;
+  createdAt: string;
+};
