@@ -1,6 +1,7 @@
 import { Database } from 'bun:sqlite';
 import { drizzle } from 'drizzle-orm/bun-sqlite';
 import env from '../lib/env';
+import * as blacklist from './schema/blacklist.schema';
 import * as file from './schema/file.schema';
 import * as message from './schema/message.schema';
 import * as relations from './schema/relations.schema';
@@ -15,6 +16,7 @@ export const db = drizzle({
     ...thread,
     ...user,
     ...file,
-    ...relations
+    ...relations,
+    ...blacklist
   }
 });
