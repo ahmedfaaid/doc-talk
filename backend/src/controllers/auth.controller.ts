@@ -1,6 +1,7 @@
 import { password } from 'bun';
 import { Context } from 'hono';
-import { sign } from 'hono/jwt';
+import { decode, sign } from 'hono/jwt';
+import { createBlacklist } from '../db/operations/blacklist.operation';
 import { createUser, getUser } from '../db/operations/user.operation';
 import env from '../lib/env';
 import {
@@ -11,7 +12,12 @@ import {
   OK,
   UNAUTHORIZED
 } from '../lib/http-status-codes';
-import { LoginRoute, MeRoute, RegisterRoute } from '../routes/auth/auth.route';
+import {
+  LoginRoute,
+  LogoutRoute,
+  MeRoute,
+  RegisterRoute
+} from '../routes/auth/auth.route';
 import { AppRouteHandler } from '../types';
 
 export const login: AppRouteHandler<LoginRoute> = async (c: Context) => {
@@ -83,6 +89,19 @@ export const me: AppRouteHandler<MeRoute> = async (c: Context) => {
     }
     const { password, ...rest } = user;
     return c.json(rest, OK);
+  } catch (error) {
+    return c.json({ message: (error as Error).message }, INTERNAL_SERVER_ERROR);
+  }
+};
+
+export const logout: AppRouteHandler<LogoutRoute> = async (c: Context) => {
+  try {
+    const user = c.get('user');
+    const decodedToken = decode(user.token);
+
+    await createBlacklist(user.token, decodedToken.payload.expires as string);
+
+    return c.json({ success: true }, OK);
   } catch (error) {
     return c.json({ message: (error as Error).message }, INTERNAL_SERVER_ERROR);
   }
