@@ -2,6 +2,7 @@ import { Context, Next } from 'hono';
 import { verify } from 'hono/jwt';
 import env from '../lib/env';
 import { INTERNAL_SERVER_ERROR, UNAUTHORIZED } from '../lib/http-status-codes';
+import isBlacklisted from '../lib/isBlacklisted';
 import { JWTPayload } from '../types';
 
 const jwtMiddleware = async (c: Context, next: Next) => {
@@ -16,6 +17,16 @@ const jwtMiddleware = async (c: Context, next: Next) => {
     }
 
     const token = authHeader.split(' ')[1];
+
+    const blacklisted = await isBlacklisted(token);
+
+    if (blacklisted) {
+      return c.json(
+        { message: 'Unauthorized', code: UNAUTHORIZED },
+        UNAUTHORIZED
+      );
+    }
+
     const payload = (await verify(token, env.JWT_SECRET_KEY)) as JWTPayload;
 
     if (payload.exp < Math.floor(Date.now() / 1000)) {
