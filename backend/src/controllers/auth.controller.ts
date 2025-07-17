@@ -28,7 +28,7 @@ export const login: AppRouteHandler<LoginRoute> = async (c: Context) => {
 
     if (!user || !(await password.verify(plainPassword, user.password))) {
       return c.json(
-        { message: 'Invalid username or password', code: UNAUTHORIZED },
+        { message: 'Invalid email or password', code: UNAUTHORIZED },
         UNAUTHORIZED
       );
     }
