@@ -78,7 +78,9 @@ export interface AuthState {
 }
 
 export interface CookiesValues {
-  token: string;
-  userId: string;
-  email: string;
+  'doc-talk-qid': {
+    token: string;
+    userId: string;
+    email: string;
+  };
 }
