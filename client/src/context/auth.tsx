@@ -5,6 +5,7 @@ import {
   ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useState
 } from 'react';
 import { useCookies } from 'react-cookie';
@@ -15,9 +16,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [user, setUser] = useState<{ id: string; email: string } | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  const [cookies, setCookie] = useCookies<'doc-talk-qid', CookiesValues>([
-    'doc-talk-qid'
-  ]);
+  const [cookies, setCookie, removeCookie] = useCookies<
+    'doc-talk-qid',
+    CookiesValues
+  >(['doc-talk-qid']);
+
+  useEffect(() => {
+    setLoading(true);
+
+    const userEmail = cookies['doc-talk-qid'].email || null;
+    const userId = cookies['doc-talk-qid'].userId || null;
+    const token = cookies['doc-talk-qid'].token || null;
+
+    if (!userId && !userEmail && !token) {
+      setUser(null);
+      setToken(null);
+      removeCookie('doc-talk-qid');
+      setLoading(false);
+      return;
+    } else {
+      setUser({
+        email: userEmail as string,
+        id: userId as string
+      });
+      setToken(token);
+      setLoading(false);
+      return;
+    }
+  }, [cookies, setCookie, removeCookie]);
 
   const login = useCallback(
     async (loginRequest: { email: string; password: string }) => {
