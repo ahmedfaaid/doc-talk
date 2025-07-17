@@ -1,18 +1,22 @@
+mod auth;
+use futures::stream::StreamExt;
 use reqwest::Client;
+use serde::{Deserialize, Serialize};
 use std::process::Command;
 use tauri::{Emitter, Manager};
-use serde::{Deserialize, Serialize};
-use futures::stream::StreamExt;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ChatResponse {
     id: u8,
     event: String,
-    data: String
+    data: String,
 }
 
 #[tauri::command]
-async fn index_directory(directory_path: String, name: String) -> Result<serde_json::Value, String> {
+async fn index_directory(
+    directory_path: String,
+    name: String,
+) -> Result<serde_json::Value, String> {
     let client = Client::new();
     let res = client
         .post("http://localhost:5155/index-directory")
@@ -24,12 +28,17 @@ async fn index_directory(directory_path: String, name: String) -> Result<serde_j
         .await
         .map_err(|e| e.to_string())?;
 
-    let body = res.json::<serde_json::Value>().await.map_err(|e| e.to_string())?;
+    let body = res
+        .json::<serde_json::Value>()
+        .await
+        .map_err(|e| e.to_string())?;
     Ok(body)
 }
 
 #[tauri::command]
-async fn retrieve_indexed_directory(directory: Option<String>) -> Result<serde_json::Value, String> {
+async fn retrieve_indexed_directory(
+    directory: Option<String>,
+) -> Result<serde_json::Value, String> {
     let client = Client::new();
     let mut request = client.get("http://localhost:5155/retrieve-directory");
 
@@ -38,8 +47,11 @@ async fn retrieve_indexed_directory(directory: Option<String>) -> Result<serde_j
     }
 
     let res = request.send().await.map_err(|e| e.to_string())?;
-    let body = res.json::<serde_json::Value>().await.map_err(|e| e.to_string())?;
-  Ok(body)
+    let body = res
+        .json::<serde_json::Value>()
+        .await
+        .map_err(|e| e.to_string())?;
+    Ok(body)
 }
 
 #[tauri::command]
@@ -75,7 +87,7 @@ async fn chat(window: tauri::Window, query: String, directory_path: String) -> R
         }
     }
 
-  Ok(())
+    Ok(())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -99,7 +111,12 @@ pub fn run() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![index_directory, retrieve_indexed_directory, chat])
+        .invoke_handler(tauri::generate_handler![
+            index_directory,
+            retrieve_indexed_directory,
+            chat,
+            auth::login
+        ])
         .plugin(tauri_plugin_shell::init())
         .run(tauri::generate_context!())
         .expect("There was an error while starting the Doc-Talk Tauri app");
