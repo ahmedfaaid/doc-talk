@@ -3,7 +3,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { SelectedDirectoryContext } from '@/context/directory-dialog';
 import { Message as Msg } from '@/types';
 import { FormEvent, useContext, useEffect, useRef, useState } from 'react';
-import Message from '../Message';
+import Message from '../message';
 
 export default function ChatView() {
   const { directory } = useContext(SelectedDirectoryContext);
