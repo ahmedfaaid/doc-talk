@@ -3,14 +3,20 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/auth';
 import { error, success } from '@/lib/toasts';
 import * as Form from '@radix-ui/react-form';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 export default function Login() {
-  const { login, loading } = useAuth();
+  const { login, loading, user, token } = useAuth();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('second');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!!user && token) {
+      navigate('/');
+    }
+  }, [user, token]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
