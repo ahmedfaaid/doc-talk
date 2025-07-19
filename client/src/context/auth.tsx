@@ -103,8 +103,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     []
   );
 
+  const logout = useCallback(async (token: string) => {
+    setLoading(true);
+
+    try {
+      const res: AuthResponse = await invoke('logout', { token });
+
+      if (!res.success) {
+        setLoading(false);
+        return {
+          message: 'Logout failed',
+          success: false
+        };
+      }
+
+      removeCookie('doc-talk-qid');
+      setUser(null);
+      setToken(null);
+      setLoading(false);
+      return {
+        success: true,
+        message: 'Logged out'
+      };
+    } catch (error) {
+      setLoading(false);
+      return {
+        success: false,
+        message: (error as Error).message,
+        code: 500
+      };
+    }
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ loading, user, token, login }}>
+    <AuthContext.Provider value={{ loading, user, token, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
