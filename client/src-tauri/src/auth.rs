@@ -32,3 +32,21 @@ pub async fn login(credentials: LoginRequest) -> Result<serde_json::Value, Strin
 
     Ok(body)
 }
+#[tauri::command]
+pub async fn me(token: String) -> Result<serde_json::Value, String> {
+    let client = Client::new();
+
+    let res = client
+        .get("http://localhost/api/auth/me")
+        .bearer_auth(token)
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let body = res
+        .json::<serde_json::Value>()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    Ok(body)
+}
