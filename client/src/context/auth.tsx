@@ -24,11 +24,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     setLoading(true);
 
-    const userEmail = cookies['doc-talk-qid'].email || null;
-    const userId = cookies['doc-talk-qid'].userId || null;
-    const token = cookies['doc-talk-qid'].token || null;
+    const cookieData = cookies['doc-talk-qid'];
 
-    if (!userId && !userEmail && !token) {
+    if (!cookieData) {
       setUser(null);
       setToken(null);
       removeCookie('doc-talk-qid');
@@ -36,10 +34,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return;
     } else {
       setUser({
-        email: userEmail as string,
-        id: userId as string
+        email: cookieData.email as string,
+        id: cookieData.userId as string
       });
-      setToken(token);
+      setToken(cookieData.token);
       setLoading(false);
       return;
     }
