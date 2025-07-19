@@ -1,4 +1,5 @@
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/context/auth';
 import { ApiResponse } from '@/types';
 import * as Avatar from '@radix-ui/react-avatar';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
@@ -23,6 +24,7 @@ import {
 export default function AppSidebar() {
   const { directory, setDirectory, indexed, setIndexed, name, setName } =
     useContext(SelectedDirectoryContext);
+  const { user } = useAuth();
   const folderNameRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -140,7 +142,9 @@ export default function AppSidebar() {
                       CT
                     </Avatar.Fallback>
                   </Avatar.Root>
-                  <span className='text-sm'>Abena Acheampong</span>
+                  <span className='text-sm'>
+                    {user?.firstName} {user?.lastName}
+                  </span>
                   {/* <ChevronUp size={20} color='#1e40af' /> */}
                 </div>
               </DropdownMenu.Trigger>
