@@ -66,7 +66,12 @@ export const me = createRoute({
   method: 'get',
   path: 'auth/me',
   responses: {
-    [HttpStatusCodes.OK]: jsonContent(selectUserSchema, 'The requested user'),
+    [HttpStatusCodes.OK]: jsonContent(
+      z.object({
+        user: selectUserSchema
+      }),
+      'The requested user'
+    ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, 'User not found'),
     [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       serverErrorSchema,
