@@ -1,4 +1,10 @@
-import { AuthResponse, AuthState, CookiesValues } from '@/types';
+import {
+  AuthResponse,
+  AuthState,
+  CookiesValues,
+  MeResponse,
+  User
+} from '@/types';
 import { invoke } from '@tauri-apps/api/core';
 import {
   createContext,
@@ -14,7 +20,7 @@ export const AuthContext = createContext<AuthState | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [user, setUser] = useState<{ id: string; email: string } | null>(null);
+  const [user, setUser] = useState<Partial<User> | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [cookies, setCookie, removeCookie] = useCookies<
     'doc-talk-qid',
@@ -22,25 +28,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   >(['doc-talk-qid']);
 
   useEffect(() => {
-    setLoading(true);
+    const checkSignedInUser = async () => {
+      setLoading(true);
 
-    const cookieData = cookies['doc-talk-qid'];
+      const cookieData = cookies['doc-talk-qid'];
 
-    if (!cookieData) {
-      setUser(null);
-      setToken(null);
-      removeCookie('doc-talk-qid');
-      setLoading(false);
-      return;
-    } else {
-      setUser({
-        email: cookieData.email as string,
-        id: cookieData.userId as string
+      if (!cookieData) {
+        setUser(null);
+        setToken(null);
+        removeCookie('doc-talk-qid');
+        setLoading(false);
+        return;
+      }
+
+      const meQuery: MeResponse = await invoke('me', {
+        token: cookieData.token
       });
+
+      if (!meQuery.user) {
+        setUser(null);
+        setToken(null);
+        removeCookie('doc-talk-qid');
+        setLoading(false);
+        return;
+      }
+
+      setUser(meQuery.user);
       setToken(cookieData.token);
       setLoading(false);
-      return;
-    }
+    };
+
+    checkSignedInUser();
   }, [cookies, setCookie, removeCookie]);
 
   const login = useCallback(
