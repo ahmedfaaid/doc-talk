@@ -100,7 +100,12 @@ export const logout = createRoute({
       serverErrorSchema,
       'Server error'
     )
-  }
+  },
+  security: [
+    {
+      Bearer: []
+    }
+  ]
 });
 
 export type LoginRoute = typeof login;
