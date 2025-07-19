@@ -1,10 +1,4 @@
-import {
-  AuthResponse,
-  AuthState,
-  CookiesValues,
-  MeResponse,
-  User
-} from '@/types';
+import { AuthResponse, AuthState, CookiesValues, User } from '@/types';
 import { invoke } from '@tauri-apps/api/core';
 import {
   createContext,
@@ -41,7 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      const meQuery: MeResponse = await invoke('me', {
+      const meQuery: AuthResponse = await invoke('me', {
         token: cookieData.token
       });
 

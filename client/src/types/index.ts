@@ -78,8 +78,3 @@ export interface CookiesValues {
     email: string;
   };
 }
-
-export interface MeResponse {
-  message?: string;
-  user?: User;
-}
