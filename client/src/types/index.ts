@@ -66,6 +66,7 @@ export interface AuthResponse {
 
 export interface AuthState {
   login: (data: { email: string; password: string }) => Promise<AuthResponse>;
+  logout: (token: string) => Promise<AuthResponse>;
   loading: boolean;
   user: Partial<User> | null;
   token: string | null;
