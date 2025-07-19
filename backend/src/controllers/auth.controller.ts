@@ -88,7 +88,7 @@ export const me: AppRouteHandler<MeRoute> = async (c: Context) => {
       return c.json({ message: 'User not found', code: NOT_FOUND }, NOT_FOUND);
     }
     const { password, ...rest } = user;
-    return c.json(rest, OK);
+    return c.json({ user: rest }, OK);
   } catch (error) {
     return c.json({ message: (error as Error).message }, INTERNAL_SERVER_ERROR);
   }
