@@ -56,7 +56,8 @@ pub async fn logout(token: String) -> Result<serde_json::Value, String> {
     let client = Client::new();
 
     let res = client
-        .get("http://localhost:5155/api/auth/logout")
+        .post("http://localhost:5155/api/auth/logout")
+        .header("Origin", "http://localhost:5155")
         .bearer_auth(token)
         .send()
         .await
