@@ -142,10 +142,12 @@ export default function AppSidebar() {
                       CT
                     </Avatar.Fallback>
                   </Avatar.Root>
-                  <span className='text-sm'>
-                    {user?.firstName} {user?.lastName}
-                  </span>
-                  {/* <ChevronUp size={20} color='#1e40af' /> */}
+                  <div className='flex flex-col'>
+                    <span className='text-sm font-semibold'>
+                      {user?.firstName} {user?.lastName}
+                    </span>
+                    <span className='text-xs text-gray-500'>{user?.email}</span>
+                  </div>
                 </div>
               </DropdownMenu.Trigger>
               <DropdownMenu.Content className='mb-4 w-40 rounded-sm bg-white p-4'>
