@@ -37,7 +37,7 @@ pub async fn me(token: String) -> Result<serde_json::Value, String> {
     let client = Client::new();
 
     let res = client
-        .get("http://localhost/api/auth/me")
+        .get("http://localhost:5155/api/auth/me")
         .bearer_auth(token)
         .send()
         .await
