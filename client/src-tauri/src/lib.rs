@@ -115,7 +115,8 @@ pub fn run() {
             index_directory,
             retrieve_indexed_directory,
             chat,
-            auth::login
+            auth::login,
+            auth::me
         ])
         .plugin(tauri_plugin_shell::init())
         .run(tauri::generate_context!())
