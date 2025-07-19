@@ -90,7 +90,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           success: true
         };
       } catch (error) {
-        console.log({ error });
         setUser(null);
         setToken(null);
         setLoading(false);
