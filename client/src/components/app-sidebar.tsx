@@ -1,5 +1,6 @@
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/auth';
+import { error, success } from '@/lib/toasts';
 import { ApiResponse } from '@/types';
 import * as Avatar from '@radix-ui/react-avatar';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
@@ -7,6 +8,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
 import { FolderPlus, FolderUp } from 'lucide-react';
 import { useContext, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router';
 import { SelectedDirectoryContext } from '../context/directory-dialog';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
@@ -24,8 +26,9 @@ import {
 export default function AppSidebar() {
   const { directory, setDirectory, indexed, setIndexed, name, setName } =
     useContext(SelectedDirectoryContext);
-  const { user } = useAuth();
+  const { user, token, logout } = useAuth();
   const folderNameRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (directory !== null && !indexed) {
@@ -63,6 +66,17 @@ export default function AppSidebar() {
     } catch (error) {
       setIndexed(false);
       alert('Failed to index the directory');
+    }
+  };
+
+  const handleLogout = async () => {
+    const res = await logout(token as string);
+
+    if (res.success) {
+      success(res.message as string);
+      navigate('/login');
+    } else {
+      error(res.message as string);
     }
   };
 
@@ -152,7 +166,9 @@ export default function AppSidebar() {
               </DropdownMenu.Trigger>
               <DropdownMenu.Content className='mb-4 w-40 rounded-sm bg-white p-4'>
                 <DropdownMenu.Item className='hover:outline-none'>
-                  <Button className='w-full'>Logout</Button>
+                  <Button className='w-full' onClick={handleLogout}>
+                    Logout
+                  </Button>
                 </DropdownMenu.Item>
                 <DropdownMenu.Arrow />
               </DropdownMenu.Content>
