@@ -58,10 +58,7 @@ export interface RegisterPayload {
 
 export interface AuthResponse {
   token?: string;
-  user?: {
-    id: string;
-    email: string;
-  };
+  user?: User;
   message?: string;
   code?: number;
   success?: boolean;
@@ -70,10 +67,7 @@ export interface AuthResponse {
 export interface AuthState {
   login: (data: { email: string; password: string }) => Promise<AuthResponse>;
   loading: boolean;
-  user: {
-    id: string;
-    email: string;
-  } | null;
+  user: Partial<User> | null;
   token: string | null;
 }
 
@@ -83,4 +77,9 @@ export interface CookiesValues {
     userId: string;
     email: string;
   };
+}
+
+export interface MeResponse {
+  message?: string;
+  user?: User;
 }
