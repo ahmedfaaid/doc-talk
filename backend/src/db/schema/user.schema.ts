@@ -77,8 +77,5 @@ export const registerSchema = z.object({
 
 export const authSchema = z.object({
   token: z.string(),
-  user: z.object({
-    id: z.string().uuid(),
-    email: z.string().email()
-  })
+  user: selectUserSchema
 });
