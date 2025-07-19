@@ -40,7 +40,9 @@ export const login: AppRouteHandler<LoginRoute> = async (c: Context) => {
     };
     const token = await sign(payload, process.env.JWT_SECRET_KEY!);
 
-    return c.json({ token, user: { id: user.id, email: user.email } }, OK);
+    const { password: _pwd, ...rest } = user;
+
+    return c.json({ token, user: { ...rest } }, OK);
   } catch (error) {
     return c.json({ message: (error as Error).message }, INTERNAL_SERVER_ERROR);
   }
@@ -69,10 +71,9 @@ export const register: AppRouteHandler<RegisterRoute> = async (c: Context) => {
     };
     const token = await sign(payload, env.JWT_SECRET_KEY!);
 
-    return c.json(
-      { token, user: { id: registerUser.id, email: registerUser.email } },
-      CREATED
-    );
+    const { password: _pwd, ...rest } = registerUser;
+
+    return c.json({ token, user: { ...rest } }, CREATED);
   } catch (error) {
     return c.json({ message: (error as Error).message }, INTERNAL_SERVER_ERROR);
   }
