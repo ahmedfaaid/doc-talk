@@ -1,5 +1,7 @@
 import { Input } from '@/components/ui/input';
 import { ApiResponse } from '@/types';
+import * as Avatar from '@radix-ui/react-avatar';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
 import { FolderPlus, FolderUp } from 'lucide-react';
@@ -116,7 +118,39 @@ export default function AppSidebar() {
         <Button>Start a new chat</Button>
         <SidebarGroup />
       </SidebarContent>
-      <SidebarFooter />
+      <SidebarFooter className='border-t p-4'>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger asChild className='cursor-pointer'>
+                <div className='flex items-center justify-evenly'>
+                  <Avatar.Root className='inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full align-middle'>
+                    <Avatar.Image
+                      src='https://images.unsplash.com/photo-1611432579402-7037e3e2c1e4?q=80&w=765&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+                      alt='Black business lady'
+                      className='h-full w-full object-cover'
+                    />
+                    <Avatar.Fallback
+                      className='flex h-full w-full items-center justify-center bg-white font-medium leading-none text-gray-700'
+                      delayMs={600}
+                    >
+                      CT
+                    </Avatar.Fallback>
+                  </Avatar.Root>
+                  <span className='text-sm'>Abena Acheampong</span>
+                  {/* <ChevronUp size={20} color='#1e40af' /> */}
+                </div>
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Content className='mb-4 w-40 rounded-sm bg-white p-4'>
+                <DropdownMenu.Item className='hover:outline-none'>
+                  <Button className='w-full'>Logout</Button>
+                </DropdownMenu.Item>
+                <DropdownMenu.Arrow />
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 }
