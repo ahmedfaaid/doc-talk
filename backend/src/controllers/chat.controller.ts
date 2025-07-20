@@ -104,7 +104,18 @@ export const chat: AppRouteHandler<ChatRoute> = async (c: Context) => {
     const vector_path = createVectorStorePath(user.id, fileId);
     const vectorStore = await HNSWLib.load(vector_path, embeddings);
 
-    const retriever = vectorStore.asRetriever();
+    // Enhance retrieval with semantic search and contextual filtering
+    const retriever = vectorStore.asRetriever({
+      searchType: 'semantic',
+      filters: { context: content }
+    });
+
+    // Implement ranking and scoring
+    retriever.setRankingFunction((doc, query) => {
+      // Example ranking logic based on semantic similarity
+      const similarity = embeddings.similarity(doc.embedding, query.embedding);
+      return similarity;
+    });
 
     // Construct prompts
     const prompt1 = ChatPromptTemplate.fromMessages([

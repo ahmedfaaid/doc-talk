@@ -45,9 +45,10 @@ export const uploadProgress = new Map<string, FileUploadProgress>();
 
 export const chunkAndStoreProgress = new Map<string, ChunkAndStoreProgress>();
 
+// Increased chunk size and overlap for legal documents
 export const textSplitter = new RecursiveCharacterTextSplitter({
-  chunkSize: 1000,
-  chunkOverlap: 200
+  chunkSize: 2500,
+  chunkOverlap: 800
 });
 
 export const roleHeirarchy = ['user', 'admin', 'superadmin'] as const;

@@ -44,8 +44,15 @@ export type ZodSchema =
 export type AppBindings = {
   Variables: {
     logger: PinoLogger;
+    user: {
+      id: string;
+      email: string;
+    };
   };
 };
+
+import { Context } from 'hono';
+export type AppContext = Context<AppBindings>;
 
 export type AppOpenApi = OpenAPIHono<AppBindings>;
 
