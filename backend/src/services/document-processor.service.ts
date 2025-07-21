@@ -2,6 +2,9 @@ import { PDFLoader } from 'langchain/document_loaders/fs/pdf';
 import { UnstructuredLoader } from 'langchain/document_loaders/fs/unstructured';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 
+// Faaid:
+// I have this entire process broken up into different functions in 'lib/utils.ts' and 'lib/chunk-and-store.ts'
+
 export class DocumentProcessorService {
   private textSplitter: RecursiveCharacterTextSplitter;
 
