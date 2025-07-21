@@ -6,7 +6,7 @@ import * as Avatar from '@radix-ui/react-avatar';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
-import { FolderPlus, FolderUp } from 'lucide-react';
+import { FolderPlus, FolderUp, LogOut } from 'lucide-react';
 import { useContext, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { SelectedDirectoryContext } from '../context/directory-dialog';
@@ -167,7 +167,7 @@ export default function AppSidebar() {
               <DropdownMenu.Content className='mb-4 w-40 rounded-sm bg-white p-4'>
                 <DropdownMenu.Item className='hover:outline-none'>
                   <Button className='w-full' onClick={handleLogout}>
-                    Logout
+                    <LogOut /> Logout
                   </Button>
                 </DropdownMenu.Item>
                 <DropdownMenu.Arrow />
