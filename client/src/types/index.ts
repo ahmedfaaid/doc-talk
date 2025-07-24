@@ -79,3 +79,17 @@ export interface CookiesValues {
     email: string;
   };
 }
+
+export interface UploadFile {
+  name: string;
+  progress: number;
+  status: 'uploading' | 'processing' | 'completed' | 'error';
+}
+
+export interface ChatThread {
+  id: string;
+  title: string;
+  lastMessage: string;
+  timestamp: string;
+  messageCount: number;
+}
