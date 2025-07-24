@@ -7,7 +7,7 @@ export default function Layout() {
     <div>
       <SidebarProvider>
         <AppSidebar />
-        <main className='h-screen w-full pb-2'>
+        <main className='h-screen w-full'>
           <Outlet />
         </main>
       </SidebarProvider>
