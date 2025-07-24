@@ -1,73 +1,31 @@
-import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/auth';
+import { chatThreads } from '@/lib/data';
 import { error, success } from '@/lib/toasts';
-import { ApiResponse } from '@/types';
-import * as Avatar from '@radix-ui/react-avatar';
+import { UploadFile } from '@/types';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { invoke } from '@tauri-apps/api/core';
-import { open } from '@tauri-apps/plugin-dialog';
-import { FolderPlus, FolderUp, LogOut } from 'lucide-react';
-import { useContext, useEffect, useRef } from 'react';
+import { LogOut, Plus } from 'lucide-react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { SelectedDirectoryContext } from '../context/directory-dialog';
+import Thread from './thread';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
-import { Separator } from './ui/separator';
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem
-} from './ui/sidebar';
+import { ScrollArea } from './ui/scroll-area';
+import UploadFilesDialog from './upload-files-dialog';
 
 export default function AppSidebar() {
-  const { directory, setDirectory, indexed, setIndexed, name, setName } =
-    useContext(SelectedDirectoryContext);
+  // const { directory, setDirectory, indexed, setIndexed, name, setName } =
+  //   useContext(SelectedDirectoryContext);
   const { user, token, logout } = useAuth();
-  const folderNameRef = useRef<HTMLInputElement>(null);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([]);
+  // const folderNameRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (directory !== null && !indexed) {
-      folderNameRef.current!.focus();
-    }
-  }, [directory, indexed]);
-
-  const handleSelectDirectory = async () => {
-    const directory = await open({
-      multiple: false,
-      directory: true
-    });
-
-    if (directory) {
-      setDirectory(directory);
-    } else {
-      setDirectory(null);
-    }
-  };
-
-  const handleIndexDirectory = async () => {
-    try {
-      const indexDirectory: ApiResponse = await invoke('index_directory', {
-        directoryPath: directory,
-        name
-      });
-
-      if (indexDirectory.directory === null) {
-        setIndexed(false);
-        alert('Failed to index the directory');
-      } else {
-        setIndexed(true);
-        alert('Directory indexed successfully');
-      }
-    } catch (error) {
-      setIndexed(false);
-      alert('Failed to index the directory');
-    }
-  };
+  // useEffect(() => {
+  //   if (directory !== null && !indexed) {
+  //     folderNameRef.current!.focus();
+  //   }
+  // }, [directory, indexed]);
 
   const handleLogout = async () => {
     const res = await logout(token as string);
@@ -80,102 +38,125 @@ export default function AppSidebar() {
     }
   };
 
+  const handleFileUpload = (files: FileList | null) => {
+    if (!files) return;
+
+    const newFiles: UploadFile[] = Array.from(files).map((file) => ({
+      name: file.name,
+      progress: 0,
+      status: 'uploading' as const
+    }));
+
+    setUploadFiles(newFiles);
+
+    // Simulate upload progress
+    newFiles.forEach((_file, index) => {
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          setUploadFiles((prev) =>
+            prev.map((f, i) =>
+              i === index ? { ...f, progress: 100, status: 'processing' } : f
+            )
+          );
+
+          // Simulate processing
+          setTimeout(() => {
+            setUploadFiles((prev) =>
+              prev.map((f, i) =>
+                i === index ? { ...f, status: 'completed' } : f
+              )
+            );
+            // Add completed file to uploaded files list
+            // setUploadedFiles((prev) => [...prev, file.name])
+          }, 2000);
+        } else {
+          setUploadFiles((prev) =>
+            prev.map((f, i) => (i === index ? { ...f, progress } : f))
+          );
+        }
+      }, 200);
+    });
+  };
+
   return (
-    <Sidebar>
-      <SidebarHeader className='p-4'>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            {directory ? (
-              <span className='break-words text-sm text-slate-700'>
-                <span className='font-semibold'>Selected folder:</span>{' '}
-                {directory}
-              </span>
-            ) : (
-              <span className='text-sm text-slate-700'>
-                You have not selected a folder to index
-              </span>
-            )}
-          </SidebarMenuItem>
-          <SidebarMenuItem className='mb-2'>
-            <Input
-              disabled={false}
-              type='text'
-              placeholder='Enter a name for your folder'
-              className='focus-visible:ring-green-500'
-              ref={folderNameRef}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </SidebarMenuItem>
-          <SidebarMenuItem className='mb-2'>
-            <SidebarMenuButton
-              onClick={handleSelectDirectory}
-              className='bg-sky-700 p-5 text-white hover:bg-sky-900 hover:text-white'
+    <div className='bg-palette-white border-palette-light-gray flex w-80 flex-col border-r shadow-lg'>
+      {/* Header */}
+      <div className='from-palette-navy to-palette-dark-blue bg-gradient-to-r p-6'>
+        {/* File Management Section */}
+        <div className='space-y-3'>
+          <UploadFilesDialog
+            isUploadDialogOpen={isUploadDialogOpen}
+            setIsUploadDialogOpen={setIsUploadDialogOpen}
+            handleFileUpload={handleFileUpload}
+            uploadFiles={uploadFiles}
+          />
+        </div>
+      </div>
+
+      {/* Chat Threads */}
+      <div className='bg-palette-warm-white flex flex-1 flex-col'>
+        <div className='p-4'>
+          <div className='flex items-center justify-between'>
+            <h2 className='text-primary font-medium'>Chat History</h2>
+            <Button
+              size='sm'
+              className='bg-palette-coral hover:bg-palette-orange text-palette-white rounded-full p-2 shadow-md'
             >
-              <FolderPlus />
-              Select a folder to index
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              disabled={!directory || indexed}
-              className='bg-green-800 p-5 text-white hover:bg-green-900 hover:text-white'
-              onClick={handleIndexDirectory}
-            >
-              <FolderUp />
-              Index folder
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
-      <Separator />
-      {/* TODO: Handle multiple chat threads in the future */}
-      <SidebarContent className='p-4'>
-        <Button>Start a new chat</Button>
-        <SidebarGroup />
-      </SidebarContent>
-      <SidebarFooter className='border-t'>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <DropdownMenu.Root>
-              <DropdownMenu.Trigger
-                asChild
-                className='cursor-pointer rounded-sm p-4 data-[state=open]:bg-slate-400 hover:bg-slate-200'
+              <Plus className='h-4 w-4' />
+            </Button>
+          </div>
+        </div>
+
+        <ScrollArea className='flex-1'>
+          <div className='space-y-2 p-2'>
+            {chatThreads.map((thread) => (
+              <Thread thread={thread} key={thread.id} />
+            ))}
+          </div>
+        </ScrollArea>
+      </div>
+
+      {/* User Profile */}
+      <div className='border-palette-light-gray from-palette-navy to-palette-dark-blue border-t bg-gradient-to-r p-4'>
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger asChild className='cursor-pointer'>
+            <div className='flex items-center gap-3'>
+              <Avatar className='ring-palette-pink h-10 w-10 ring-2'>
+                <AvatarImage src='https://images.unsplash.com/photo-1611432579402-7037e3e2c1e4?q=80&w=765&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' />
+                <AvatarFallback className='from-palette-coral to-palette-orange text-palette-white bg-gradient-to-r font-semibold'>
+                  AF
+                </AvatarFallback>
+              </Avatar>
+              <div className='min-w-0 flex-1'>
+                <p className='text-palette-white text-sm font-medium'>
+                  {user?.firstName} {user?.lastName}
+                </p>
+                <p className='text-palette-cream truncate text-xs'>
+                  {user?.email}
+                </p>
+              </div>
+            </div>
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            side='right'
+            className='ml-4 w-44 rounded-sm bg-white p-4'
+          >
+            <DropdownMenu.Item className='hover:outline-none'>
+              <Button
+                className='bg-palette-coral w-full'
+                onClick={handleLogout}
               >
-                <div className='flex items-center'>
-                  <Avatar.Root className='mr-4 inline-flex h-6 w-6 items-center justify-center overflow-hidden rounded-full align-middle'>
-                    <Avatar.Image
-                      src='https://images.unsplash.com/photo-1611432579402-7037e3e2c1e4?q=80&w=765&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
-                      alt='Black business lady'
-                      className='h-full w-full object-cover'
-                    />
-                    <Avatar.Fallback
-                      className='flex h-full w-full items-center justify-center bg-white font-medium leading-none text-gray-700'
-                      delayMs={600}
-                    >
-                      CT
-                    </Avatar.Fallback>
-                  </Avatar.Root>
-                  <div className='flex flex-col'>
-                    <span className='text-sm font-semibold'>
-                      {user?.firstName} {user?.lastName}
-                    </span>
-                    <span className='text-xs text-gray-500'>{user?.email}</span>
-                  </div>
-                </div>
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Content className='mb-4 w-40 rounded-sm bg-white p-4'>
-                <DropdownMenu.Item className='hover:outline-none'>
-                  <Button className='w-full' onClick={handleLogout}>
-                    <LogOut /> Logout
-                  </Button>
-                </DropdownMenu.Item>
-                <DropdownMenu.Arrow />
-              </DropdownMenu.Content>
-            </DropdownMenu.Root>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
-    </Sidebar>
+                <LogOut /> Logout
+              </Button>
+            </DropdownMenu.Item>
+            <DropdownMenu.Arrow className='fill-white' />
+          </DropdownMenu.Content>
+        </DropdownMenu.Root>
+      </div>
+    </div>
   );
 }
