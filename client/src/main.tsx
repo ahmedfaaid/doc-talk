@@ -7,6 +7,7 @@ import './App.css';
 import ProtectedRoute from './components/protected-route';
 import ToastProvider from './components/toast-provider';
 import { AuthProvider } from './context/auth';
+import NoChat from './pages';
 import Login from './pages/login';
 
 const router = createBrowserRouter([
@@ -16,7 +17,8 @@ const router = createBrowserRouter([
       <ProtectedRoute>
         <App />
       </ProtectedRoute>
-    )
+    ),
+    children: [{ index: true, Component: NoChat }]
   },
   {
     path: '/login',
