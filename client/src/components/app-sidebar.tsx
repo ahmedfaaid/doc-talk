@@ -83,7 +83,7 @@ export default function AppSidebar() {
   };
 
   return (
-    <div className='bg-palette-white border-palette-light-gray flex w-80 flex-col border-r shadow-lg'>
+    <div className='bg-palette-white flex w-80 flex-col shadow-lg'>
       {/* Header */}
       <div className='from-palette-navy to-palette-dark-blue bg-gradient-to-r p-6'>
         {/* File Management Section */}
