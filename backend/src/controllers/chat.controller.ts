@@ -106,15 +106,7 @@ export const chat: AppRouteHandler<ChatRoute> = async (c: Context) => {
 
     // Enhance retrieval with semantic search and contextual filtering
     const retriever = vectorStore.asRetriever({
-      searchType: 'semantic',
-      filters: { context: content }
-    });
-
-    // Implement ranking and scoring
-    retriever.setRankingFunction((doc, query) => {
-      // Example ranking logic based on semantic similarity
-      const similarity = embeddings.similarity(doc.embedding, query.embedding);
-      return similarity;
+      searchType: 'similarity'
     });
 
     // Construct prompts

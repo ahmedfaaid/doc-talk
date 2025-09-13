@@ -45,15 +45,18 @@ async function uploadFileWithProgress(
 
     // Return early if we don't need to process this file
     if (
-      !extension ||
-      !ownerId ||
-      !filename ||
-      !fileExtensions.includes(extension.toLowerCase() as any)
+      extension &&
+      ownerId &&
+      filename &&
+      fileExtensions.includes(extension!.toLowerCase() as string)
     ) {
-      return;
+      chunkAndStore(uploadPath, filename, extension, uploadId, ownerId);
     }
     // Don't process here - let the controller handle it so we can pass all parameters
     // This will be handled in the controller after upload completes
+    // Faaid:
+    // The reason I am processing here is because the chunk and store process is supposed to be triggered immediately after the upload is complete
+    // I dont want to have a separate controller for it which will force me to trigger it in the front end leading to more code
   } catch (error) {
     await updateUploadProgress(uploadId, 'failed');
     const progress = uploadProgress.get(uploadId);

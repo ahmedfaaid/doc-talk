@@ -66,6 +66,7 @@ export const loginSchema = z.object({
 
 export const registerSchema = z.object({
   email: z.string().email(),
+  password: z.string(),
   firstName: z.string(),
   lastName: z.string(),
   company: z.string().nullable(),
@@ -76,8 +77,5 @@ export const registerSchema = z.object({
 
 export const authSchema = z.object({
   token: z.string(),
-  user: z.object({
-    id: z.string().uuid(),
-    email: z.string().email()
-  })
+  user: selectUserSchema
 });
