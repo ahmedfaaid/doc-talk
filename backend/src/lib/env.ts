@@ -2,9 +2,13 @@ import { z, ZodError } from 'zod';
 
 const EnvSchema = z
   .object({
-    HUGGING_FACE_TOKEN: z.string().optional(),
+    // Database
     DB_FILE_NAME: z.string().url(),
+    
+    // Authentication
     JWT_SECRET_KEY: z.string(),
+    
+    // Server
     PORT: z.coerce.number().default(5155),
     NODE_ENV: z
       .enum(['development', 'production', 'test'])
@@ -17,7 +21,28 @@ const EnvSchema = z
       'debug',
       'trace',
       'silent'
-    ])
+    ]),
+    
+    // AI Services
+    OPENAI_API_KEY: z.string().optional(),
+    LM_STUDIO_BASE_URL: z.string().default('http://localhost:1234/v1'),
+    LM_STUDIO_API_KEY: z.string().default('lm-studio'),
+    
+    // Vector Database
+    CHROMA_URL: z.string().default('http://localhost:8000'),
+    
+    // Graph Database
+    NEO4J_URI: z.string().default('bolt://localhost:7687'),
+    NEO4J_USERNAME: z.string().default('neo4j'),
+    NEO4J_PASSWORD: z.string().default('password'),
+    
+    // Optional Services
+    HUGGING_FACE_TOKEN: z.string().optional(),
+    
+    // Service Flags
+    USE_LOCAL_AI: z.coerce.boolean().default(true),
+    USE_CHROMADB: z.coerce.boolean().default(true),
+    USE_NEO4J: z.coerce.boolean().default(true)
   })
   .superRefine((input, ctx) => {
     if (!input.JWT_SECRET_KEY) {

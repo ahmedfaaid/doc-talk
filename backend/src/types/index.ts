@@ -38,8 +38,8 @@ export type User = {
 
 export type ZodSchema =
   | z.ZodUnion<any>
-  | z.AnyZodObject
-  | z.ZodArray<z.AnyZodObject>;
+  | z.ZodObject<any>
+  | z.ZodArray<z.ZodObject<any>>;
 
 export type AppBindings = {
   Variables: {
@@ -115,3 +115,6 @@ export type ChunkAndStoreProgress = {
   stage: 'loading' | 'chunking' | 'embedding' | 'storing';
   message?: string;
 };
+
+// Export legal types
+export * from './legal.types.js';

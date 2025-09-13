@@ -1,10 +1,11 @@
 import { and, eq, inArray } from 'drizzle-orm';
-import { db } from '..';
-import hasAccess, { getAccessibleRoles } from '../../lib/access';
-import { File } from '../../types';
-import { files } from '../schema/file.schema';
-import { users } from '../schema/user.schema';
-import { getUser } from './user.operation';
+import { db } from '../index.js';
+import hasAccess, { getAccessibleRoles } from '../../lib/access.js';
+import { processLegalDocument } from '../../lib/process-legal-document.js';
+import { File, FileExtension } from '../../types/index.js';
+import { files } from '../schema/file.schema.js';
+import { users } from '../schema/user.schema.js';
+import { getUser } from './user.operation.js';
 
 export const uploadFile = async (
   file: Omit<
@@ -217,4 +218,73 @@ export const getFileVectorProcessingStatus = async (
     vectorCompletedAt: file.vectorCompletedAt,
     vectorStorePath: file.vectorStorePath
   };
+};
+
+/**
+ * Mark a file as a legal document with jurisdiction and document type
+ */
+export const markAsLegalDocument = async (
+  fileId: string,
+  userId: string,
+  jurisdiction: string,
+  documentType: string
+): Promise<File | null> => {
+  const user = await getUser(userId, undefined);
+
+  if (!user) {
+    return null;
+  }
+
+  const accessibleRoles = getAccessibleRoles(user.role);
+
+  if (accessibleRoles.length === 0) {
+    return null;
+  }
+
+  const file = await db.query.files.findFirst({
+    where: and(
+      eq(files.id, fileId),
+      eq(files.ownerId, user.parentId || user.id),
+      inArray(files.accessLevel, accessibleRoles)
+    )
+  });
+
+  if (!file) {
+    return null;
+  }
+
+  if (!hasAccess(user.role, file.accessLevel!)) {
+    throw new Error('User does not have permission to access this file');
+  }
+
+  // Update the file with legal document metadata
+  const [updatedFile] = await db
+    .update(files)
+    .set({
+      isLegalDocument: true,
+      jurisdiction,
+      documentType
+    })
+    .where(eq(files.id, fileId))
+    .returning();
+
+  // Process the legal document
+  if (updatedFile) {
+    try {
+      await processLegalDocument(
+        updatedFile.uploadPath,
+        updatedFile.filename,
+        updatedFile.extension as FileExtension,
+        updatedFile.id,
+        updatedFile.ownerId,
+        jurisdiction,
+        documentType
+      );
+    } catch (error) {
+      console.error('Error processing legal document:', error);
+      // Don't throw here, we still want to return the updated file
+    }
+  }
+
+  return updatedFile as File;
 };

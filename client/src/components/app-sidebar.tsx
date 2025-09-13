@@ -2,8 +2,9 @@ import { Input } from '@/components/ui/input';
 import { ApiResponse } from '@/types';
 import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
-import { FolderPlus, FolderUp } from 'lucide-react';
+import { FolderPlus, FolderUp, MessageSquare, FileText } from 'lucide-react';
 import { useContext, useEffect, useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { SelectedDirectoryContext } from '../context/directory-dialog';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
@@ -22,6 +23,7 @@ export default function AppSidebar() {
   const { directory, setDirectory, indexed, setIndexed, name, setName } =
     useContext(SelectedDirectoryContext);
   const folderNameRef = useRef<HTMLInputElement>(null);
+  const location = useLocation();
 
   useEffect(() => {
     if (directory !== null && !indexed) {
@@ -113,8 +115,22 @@ export default function AppSidebar() {
       <Separator />
       {/* TODO: Handle multiple chat threads in the future */}
       <SidebarContent className='p-4'>
-        <Button>Start a new chat</Button>
-        <SidebarGroup />
+        <SidebarGroup>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <Link to="/" className={`flex items-center gap-2 p-2 rounded-md w-full ${location.pathname === '/' ? 'bg-sky-100 text-sky-700' : 'hover:bg-gray-100'}`}>
+                <MessageSquare size={18} />
+                <span>Chat</span>
+              </Link>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <Link to="/files" className={`flex items-center gap-2 p-2 rounded-md w-full ${location.pathname === '/files' ? 'bg-sky-100 text-sky-700' : 'hover:bg-gray-100'}`}>
+                <FileText size={18} />
+                <span>Files</span>
+              </Link>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter />
     </Sidebar>

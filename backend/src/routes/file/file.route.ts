@@ -122,6 +122,55 @@ export const vectorProgress = createRoute({
   }
 });
 
+export const markFileAsLegalDocument = createRoute({
+  tags: [...tags, 'legal'],
+  method: 'post',
+  path: '/files/legal/mark',
+  request: {
+    body: jsonContent(
+      z.object({
+        userId: z.string().min(1),
+        fileId: z.string().min(1),
+        jurisdiction: z.string().min(1),
+        documentType: z.string().min(1)
+      }),
+      'Mark file as legal document request'
+    )
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      z.object({
+        message: z.string(),
+        file: selectFileSchema
+      }),
+      'File marked as legal document successfully'
+    ),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      z.object({
+        message: z.string()
+      }),
+      'Invalid request parameters'
+    ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      z.object({
+        message: z.string()
+      }),
+      'Unauthorized access'
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
+      z.object({
+        message: z.string()
+      }),
+      'File not found or access denied'
+    ),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      serverErrorSchema,
+      'Server error'
+    )
+  }
+});
+
 export type UploadFileRoute = typeof uploadFile;
 export type UploadProgressRoute = typeof uploadProgress;
 export type VectorProgressRoute = typeof vectorProgress;
+export type MarkFileAsLegalDocumentRoute = typeof markFileAsLegalDocument;

@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 import z from 'zod';
 import { fileExtensions } from '../../lib/constants';
 import { selectUserSchema } from './user.schema';
@@ -31,6 +31,9 @@ export const files = sqliteTable('files', {
     mode: 'text',
     enum: ['processing', 'completed', 'failed']
   }),
+  isLegalDocument: integer('is_legal_document', { mode: 'boolean' }).default(false),
+  jurisdiction: text('jurisdiction', { mode: 'text' }),
+  documentType: text('document_type', { mode: 'text' }),
   createdAt: text('created_at').notNull().default(new Date().toISOString()),
   uploadCompletedAt: text('upload_completed_at', { mode: 'text' }).default(''),
   vectorCompletedAt: text('vector_completed_at', { mode: 'text' }).default('')
@@ -58,6 +61,9 @@ export const selectFileSchema = z.object({
   accessLevel: z.enum(['user', 'admin', 'superadmin']),
   uploadStatus: z.enum(['uploading', 'completed', 'failed']),
   vectorStatus: z.enum(['processing', 'completed', 'failed']).nullable(),
+  isLegalDocument: z.boolean().optional().default(false),
+  jurisdiction: z.string().optional(),
+  documentType: z.string().optional(),
   uploadCompletedAt: z.string().nullable(),
   vectorCompletedAt: z.string().nullable(),
   owner: selectUserSchema.optional(),
