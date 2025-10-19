@@ -99,7 +99,7 @@ export default function AppSidebar() {
 
       {/* Chat Threads */}
       <div className='bg-palette-warm-white flex flex-1 flex-col'>
-        <div className='p-4'>
+        <div className='border-palette-light-gray border-b p-4'>
           <div className='flex items-center justify-between'>
             <h2 className='text-primary font-medium'>Chat History</h2>
             <Button
